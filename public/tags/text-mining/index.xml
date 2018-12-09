@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Text Mining on Data Science Explorer</title>
+    <link>/tags/text-mining/</link>
+    <description>Recent content in Text Mining on Data Science Explorer</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 04 Jun 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/text-mining/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>A bag of barbarian words</title>
+      <link>/post/a-bag-of-barbarian-words/</link>
+      <pubDate>Mon, 04 Jun 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/a-bag-of-barbarian-words/</guid>
+      <description>My objective is to learn some text mining techniques and apply them to the very excellent Conan Adventures In An Age Undreamed Of roleplaying game which won best RPG at UK Games Expo 2018. I’m focusing on the Core Book.
+I will be loosely following parts of the Text Mining:Bag Of Words course from DataCamp as well as throwing in a few wild tricks of my own and plundering from Stack Overflow, as any barbarian analyst should.</description>
+    </item>
+    
+  </channel>
+</rss>

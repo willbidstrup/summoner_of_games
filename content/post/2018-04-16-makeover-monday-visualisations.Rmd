@@ -1,0 +1,215 @@
+---
+title: 2018 Makeover Monday visualisations
+author: 'Will Bidstrup'
+date: '2018-04-16'
+slug: makeover-monday-visualisations
+categories:
+  - R
+tags:
+  - R
+  - visualisation
+---
+I use [Makeover Monday](http://www.makeovermonday.co.uk/) to try new visual techniques in R and Tableau.  
+
+```{r, include = FALSE}
+# Install and load packages
+install.packages("tidyverse", repos="http://cran.rstudio.com/")
+library(tidyverse)
+
+install.packages("here", repos="http://cran.rstudio.com/")
+library(here)
+
+install.packages("ggthemes", repos="http://cran.rstudio.com/")
+library(ggthemes)
+
+install.packages("ggrepel", repos="http://cran.rstudio.com/")
+library(ggrepel)
+
+```
+
+# Week 16 Zambia Southern Province Confirmed Malaria Cases
+
+```{r, include = FALSE}
+# Read data
+d <- read_csv("data/W16_MM_malaria.csv")
+```
+
+```{r, include = FALSE}
+glimpse(d)
+```
+
+```{r, include = FALSE}
+d$Date <- as.Date(d$Date, format = "%d/%m/%Y")
+
+
+```
+
+```{r, include = FALSE}
+plot(ecdf(d$Cases))
+```
+
+
+```{r, echo = FALSE}
+ggplot(data = d, aes(x = Date, y = Cases, fill = District)) +
+  geom_bar(stat = "identity", position = "fill") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme_tufte() +
+  labs(title = "Zambia Southern Province Confirmed Malaria Cases", x = "Date" , y = "Proportion of Cases",
+       subtitle = "Simulated data from http://visualizenomalaria.org.",
+       caption = expression(paste(italic("Contact jdrummey@path.org for data questions"))))
+  
+```
+
+
+
+
+
+# Week 15 Arctic Sea Ice
+
+```{r, include = FALSE}
+# Read data
+d <- read_csv("data/W15_MM_arctic_sea_ice.csv")
+```
+
+```{r, include = FALSE}
+# Convert string to date
+d$Date <- as.Date(d$Date, format = "%d/%m/%Y")
+
+# Create fulldate
+d$full_date <- d$Date
+
+# Seperate Date into parts
+d2 <- separate(d, "Date", c("year", "Month", "day", sep = "-"))
+
+d2$`-` <- NULL
+```
+
+```{r, echo = FALSE}
+# Here is the code that makes the plot
+ggplot(data = d2, aes(x = year, y = `Extent (million sq km)`)) +
+    geom_boxplot(data = d2, aes(x = year, y = `Extent (million sq km)`)) +
+  geom_point(data = d2, aes( col = Month),position = "jitter", alpha = 0.2) +
+  theme_tufte() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))  +
+  labs(title = "Arctic Sea Ice Coverage", x = "Year" , y = "Extent of coverage measured (million sq km)",
+       subtitle = "Coverage distribution reducing over time",
+       caption = expression(paste(italic("Source: National Snow & Ice Data Center"))))
+
+```
+
+[Tableau version](https://public.tableau.com/views/ArcticSeaIceMeasurementOverTime/Dashboard1?:embed=y&:display_count=yes&publish=yes).
+
+# Week 14 Wine Production
+
+New techniques used: `dplyr::lag` to add lag variables and calculate change over time and `scale_color_manual` for palette  
+
+Feedback: Need to add some plain English description of what the chart is showing (the x variable is potentially confusing)    
+
+```{r, include = FALSE}
+# Read data
+d <- read_csv("data/W14_MM_wine_production.csv")
+```
+
+```{r, include = FALSE}
+# Add the 2016 vs 2015 variance called out in the reports
+d2 <- d %>%
+  group_by(Country) %>%
+  mutate(var.volume = dplyr::lag(`Wine production in mhl`, n = 1, default = NA),
+         var.percent = round((`Wine production in mhl` - var.volume) / `Wine production in mhl`, digits = 2))
+
+# Add classification to EU vs rest of world
+d2$group <- ifelse(d$Country %in% c("Italy", "France", "Spain", "Germany", 
+                                    "Portugal", "Romania", "Greece", "Austria",
+                                    "Hungary", "Moldova", "Bulgaria", "Georgia", "Switzerland"), "EU",
+                   ifelse(d$Country == "World total", "World", "Non-EU"))
+d2$group <- as.factor(d2$group)
+
+# Make country a factor
+d2$Country <- as.factor(d2$Country)  
+
+# Rename variables
+names(d2) <- c("Country", "Year", "Production", "var.volume", "var.percent", "group")
+
+# Calculate average variance
+d3 <- d2 %>%
+  group_by(Country) %>%
+  summarise(avg_var = round(mean(var.percent, na.rm = TRUE), digits = 2))
+
+
+# Add average variance to long data set
+d2 <- d2 %>% 
+  left_join(d3, by = "Country")
+
+# Calculate var distance from average
+d2$var.from.avg <- d2$var.percent - d2$avg_var
+
+# Add positive or negative factor (for colouring)
+d2$`2016 vs 2015` <- ifelse(d2$var.percent >= 0, "Growing", "Declining")
+d2$`2016 vs 2015` <- factor(d2$`2016 vs 2015`, levels = c("Growing", "Declining"))
+
+
+
+
+# Add category
+
+d2$type <- ifelse(d2$var.percent > 0.05 & d2$var.from.avg > 0.05, "Growing - better than average",
+                  ifelse(d2$var.percent < 0.05 & d2$var.from.avg < 0.05, "Declining - worse than average",
+                         ifelse(d2$var.percent > 0.05 & d2$var.from.avg < 0.05, "Growing - as expected", "Declining - as expected")))
+
+```
+
+```{r, echo = FALSE}
+# Here is the code that generates the plot
+ggplot(data = d2 %>%
+         filter(Year == "2016", Country != "World total"), aes(x = var.from.avg, y = var.percent, size = Production, col = `2016 vs 2015`)) +
+  geom_point(alpha = 0.5) +
+ xlim(c(-1, 1)) + 
+  ylim(c(-1.2, 1.2)) + 
+  ggrepel::geom_label_repel(aes(label = Country), data = d2 %>%
+         filter(Year == "2016", Country != "World total")) +
+  facet_grid(~ group) +
+  guides(size=FALSE) +
+  theme_tufte() +
+  scale_color_manual(values=c("#722f37","#91a3b0")) +
+  labs(title = "Wine Production in 2016 - who is improving and by how much?",
+       subtitle = "Good year for New Zealand, bad year for South America and Hungary",
+       x = "Variance 2016 vs 2015 compared to average Y/Y variance since 2012",
+       y = "Variance in Wine Production 2016 vs 2015",
+       caption = expression(paste(italic("Source: International Organisation of Vine and Wine 2017"))))
+```
+
+
+# Week 13 UK Top Ten Chocolate Bars
+
+```{r, include = FALSE}
+# Read data
+d <- read_csv("data/W13_MM_top_ten_chocolate_bars.csv")
+```
+
+```{r, include = FALSE}
+d$Brand <- as.factor(d$Brand)
+d$`Age Group` <- as.factor(d$`Age Group`)
+```
+
+```{r, include = FALSE}
+d <- na.omit(d)
+```
+
+
+```{r, echo = FALSE}
+
+ggplot(data = d, aes(x = reorder(Brand, -Rank), y = reorder(Rank, -Rank), col = factor(`Age Group`, levels = levels(`Age Group`)))) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip() +
+  theme(axis.text.y = element_text(angle = 90, hjust = 1)) +
+  facet_grid(~ `Age Group`) +
+  theme_tufte() +
+  theme(legend.position="none") +
+  labs(title = "UK highest rated chocolate bars by age group", x = "Brand" , y = "Ranking (10 is low, 1 is high)",
+       subtitle = "Mars and Galaxy popular for all ages",
+       caption = expression(paste(italic("Source: CDA"))))
+```
+
+
+
+

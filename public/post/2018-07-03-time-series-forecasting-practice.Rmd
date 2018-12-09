@@ -1,0 +1,604 @@
+---
+title: Time Series Forecasting Practice
+author: Will Bidstrup
+date: '2018-07-03'
+slug: time-series-forecasting-practice
+categories:
+  - R
+tags:
+  - forecasting
+---
+
+Today I explore time series forecasting use AFL data from the fitzRoy package.     
+
+# Key concepts
+
+A forecast is the mean of simulated futures.  
+
+- Making a ts object  
+- Trend, Seasonality, Cyclicity  
+- Plotting lags and ACF  
+- White noise  
+- Creating forecast objects  
+- Checking residuals
+- Mean Absolute Scaled Error
+- Cross Validation
+- Exponential Smoothing
+
+# Things to do
+
+```{r}
+# TODO - figure out why full ts doesn't show info from the 1900s
+```
+
+
+```{r, include = FALSE}
+install.packages("tidyverse", repos="http://cran.rstudio.com/")
+install.packages("here", repos="http://cran.rstudio.com/")
+install.packages("ggthemes", repos="http://cran.rstudio.com/")
+install.packages("forecast", repos="http://cran.rstudio.com/")
+install.packages("padr", repos="http://cran.rstudio.com/")
+
+
+install.packages("devtools", repos="http://cran.rstudio.com/")
+devtools::install_github("jimmyday12/fitzRoy")
+
+
+```
+
+```{r, message = FALSE}
+# Packages
+library(tidyverse) # For everything
+library(here) # For project-oriented workflow
+library(ggthemes) # For nice plot themes
+library(forecast) # For nice plot themes
+library(devtools) # For non-CRAN packages
+library(fitzRoy) # Data source
+library(padr) # Dates padding
+
+```
+
+# Create a time series
+
+```{r}
+# First load results info  
+d <- get_match_results()
+```
+
+Create a df with variables per time (mean where more than one game played on one day).  
+```{r}
+# Then prepare a subset for ts analysis 
+d_prep_ts <- d %>%
+  group_by(Date) %>%
+  summarize(Margin = abs(mean(Margin, na.rm = TRUE)),
+            Total_Points = mean((Home.Points + Away.Points), na.rm = TRUE),
+            Conversion = mean((Home.Goals + Away.Goals) / (Home.Goals + Away.Goals + Home.Behinds + Away.Behinds)))
+
+
+```
+
+The [padr package](https://edwinth.github.io/blog/padr-intro/) looks very helpful to fill in missing days.
+
+```{r}
+# Fill timeseries with missing dates
+d_prep_ts_full <- d_prep_ts %>% pad
+  
+```
+
+
+```{r}
+# TODO - how to add missing weeks for full year coverage?
+# Create ts object
+d_ts <- ts(d_prep_ts_full[, 2:4], start = c(1897-05-08), frequency = 365.25) # Arbitrarily screwing with the frequency here
+```
+
+
+
+Having issues visualizing the data pre 1960?  I suspect it's something to do with games only being played once a week.
+```{r}
+# TODO - why is data before 1960 not showing?
+autoplot(d_ts, facets = TRUE)
+```
+
+The points are visible in a standard ggplot...
+```{r}
+ggplot(data = d_prep_ts_full, aes(x = Date, y = Margin)) +
+  geom_point()
+
+ggplot(data = d_prep_ts_full, aes(x = Date, y = Total_Points)) +
+  geom_point()
+
+ggplot(data = d_prep_ts_full, aes(x = Date, y = Conversion)) +
+  geom_point()
+```
+
+
+Subset 1900 - 1950.
+
+```{r}
+nineteen_hundreds <- window(d_ts, 1900, 1950)
+```
+
+This makes no sense...
+```{r}
+# TODO - why is data before 1960 not showing?
+autoplot(nineteen_hundreds, facets = TRUE)
+```
+
+Subset since 1980, this seems to work.  
+```{r}
+my_life_afl <- window(d_ts, 1980)
+```
+
+```{r}
+autoplot(my_life_afl, facets = TRUE)
+```
+
+
+1980 only
+```{r}
+birth_year <- window(d_ts, 1980, 1981)
+
+```
+
+# Lag plots
+
+Create yearly timeseries.  
+
+```{r}
+d_yearly <- d %>%
+  filter(Date > "1980-01-01" & Date < "1989-12-31")
+```
+
+```{r}
+d_yearly <- d_yearly %>%
+  separate(Date, c("Year", "Month", "Day"), sep = "-")
+```
+
+```{r}
+
+d_yearly <- d_yearly %>%
+  group_by(Year) %>%
+  summarize(Margin = abs(mean(Margin, na.rm = TRUE)),
+            Total_Points = mean((Home.Points + Away.Points), na.rm = TRUE),
+            Conversion = mean((Home.Goals + Away.Goals) / (Home.Goals + Away.Goals + Home.Behinds + Away.Behinds)))
+
+```
+
+```{r}
+d_yearly_ts <- ts(d_yearly[, 2:4], start = c(1980, 1), frequency = 1)
+```
+
+```{r, fig.width = 15, fig.height = 10}
+# TODO - save image and call directly
+gglagplot(d_yearly_ts)
+```
+
+```{r}
+# Select only conversion
+d_yearly_conversion <- d_yearly %>%
+  select(Year, Conversion)
+
+d_yearly_conversion_ts <- ts(d_yearly_conversion[, 2], start = c(1980, 1), frequency = 1)
+
+```
+
+```{r}
+ggAcf(d_yearly_conversion_ts)
+```
+
+
+```{r}
+# Select only Margin
+d_yearly_margin <- d_yearly %>%
+  select(Year, Margin)
+
+d_yearly_margin_ts <- ts(d_yearly_margin[, 2], start = c(1980, 1), frequency = 1)
+
+```
+
+```{r}
+ggAcf(d_yearly_margin_ts)
+```
+
+# White Noise
+
+Use Ljung-Box test to see if there are any significant correlations, then look more closely at individual variable ACF
+
+
+
+```{r}
+# A random time-series
+```
+
+
+```{r}
+Box.test(d_yearly_conversion_ts, lag = 9, type = "Ljung")
+# Large p value confirms visual inspection
+```
+
+
+# Naive Forecast
+
+Previous value predicts future.  A **seasonal naive** uses info from previous season.  
+
+```{r}
+fcd_yearly_margin_ts <- naive(d_yearly_margin_ts, 5)
+```
+
+```{r}
+autoplot(fcd_yearly_margin_ts)
+summary(fcd_yearly_margin_ts)
+```
+
+
+```{r}
+fcd_yearly_conversion_ts <- naive(d_yearly_conversion_ts, 5)
+```
+
+```{r}
+autoplot(fcd_yearly_conversion_ts)
+summary(fcd_yearly_conversion_ts)
+```
+
+# Residuals
+
+```{r}
+checkresiduals(fcd_yearly_conversion_ts)
+```
+
+
+# Training and test
+
+I'm going to try to forecast average total points per game based on data from 1897 until now.  This is a purely theoretical interest.  
+
+```{r}
+d_points <- d %>%
+  filter(Date > "1897-01-01" & Date < "2018-07-01")
+
+d_points <- d_points %>%
+  separate(Date, c("Year", "Month", "Day"), sep = "-")
+```
+
+```{r}
+d_points <- d_points %>%
+  group_by(Year) %>%
+  summarize(Mean_Total_Points = mean((Home.Points + Away.Points), na.rm = TRUE))
+```
+
+
+```{r}
+# Make ts object
+d_points_ts <- ts(d_points[, 2], start = c(1897,1), frequency = 1)
+
+str(d_points_ts)
+```
+
+
+First a look at the data. 
+
+```{r}
+autoplot(d_points_ts)
+summary(d_points_ts)
+```
+
+
+White noise test.
+
+```{r}
+Box.test(d_points_ts, lag = 100, type = "Ljung") # low p value
+```
+
+
+
+Now split into test and train  
+
+```{r}
+train <- window(d_points_ts, end = 1995) #Use approx 80% of years as training
+test <- window(d_points_ts, start = 1996) 
+```
+
+
+
+Create forecast on the train  
+
+```{r}
+# Naive forecast
+naive_fc <- naive(train, h = 22)
+```
+
+```{r}
+# Forecasts the mean! A good comparison point
+mean_fc <- meanf(train, h = 22)
+```
+
+
+Check residuals  
+
+```{r}
+checkresiduals(naive_fc) # Looks like there is a pattern in residuals, and not normally distrubuted
+```
+
+```{r}
+checkresiduals(mean_fc) # A different pattern
+```
+
+
+Plot with actual test results overlayed  
+
+```{r}
+
+autoplot(naive_fc) +
+  autolayer(test, series = "Test data")
+```
+
+
+```{r}
+
+autoplot(mean_fc) +
+  autolayer(test, series = "Test data")
+```
+
+
+Compare accuracy
+
+```{r}
+accuracy(naive_fc, test)
+```
+
+```{r}
+accuracy(mean_fc, test) # Error values all much bigger than the naive method
+```
+
+
+Apply to future  
+
+```{r}
+# Apply naive forecast to future
+
+future <- naive(d_points_ts, h = 10)
+
+```
+
+
+```{r}
+autoplot(future)
+summary(future) # Highs getter higher, lows get lower, further into future
+```
+
+
+
+# Cross validation
+
+Cross validation 8 times using `tsCV`. Useful for smaller smaples where train/test not as useful.  
+
+```{r}
+# TODO - troubleshoot this
+# Make an empty matrix
+#e <- matrix(NA_real_, nrow = 122, ncol = 8)
+```
+
+```{r}
+# Fill empty matrix with forecast based on tsCV function
+#for (h in 1:8)
+  #e[, h] <- tsCV(d_points_ts, naive, h = h)
+```
+
+
+```{r}
+#d_points_ts
+
+```
+
+# Simple Exponential Smoothing
+
+
+9 possible exponential smoothing methods and 2 error methods so 18 models
+
+SES method on the points time series.  
+
+```{r}
+# SES forecast
+ses_fc <- ses(train, h = 22)
+```
+
+```{r}
+summary(ses_fc)
+```
+
+```{r}
+accuracy(ses_fc, test) # Not as good as naive in this case!
+
+checkresiduals(ses_fc)
+
+# TODO - full accuracy assessment
+```
+
+
+```{r}
+autoplot(ses_fc) +
+  autolayer(fitted(ses_fc))
+```
+
+Adding trends.  
+
+SES OK if there is no trend or seasonality.  
+
+Holt adds linear trends. Damped trend levels off.  
+
+```{r}
+fc_holt <- holt(train, h = 22)
+```
+
+```{r}
+summary(fc_holt)
+```
+
+```{r}
+accuracy(fc_holt, test)
+```
+
+
+```{r}
+checkresiduals(fc_holt)
+```
+
+```{r}
+autoplot(fc_holt) +
+  autolayer(test, series = "Test Series")
+```
+
+Holt-Winters can account for trend and seasonality 
+
+# State Space Models
+
+Create a model then pass that to forecast which automatically picks best forecast method to minimize error.
+
+The model state needs to be defined in terms of Error, Trend and Seasonality (ETS).
+
+Great for getting quick results.  
+
+
+```{r}
+# Create ETS model (default)
+fit_train <- ets(train)
+```
+
+```{r}
+checkresiduals(fit_train)
+```
+
+
+```{r}
+autoplot(forecast(fit_train))
+summary(forecast(fit_train))
+accuracy(forecast(fit_train), test)
+```
+
+# Transformations
+
+Lambda.
+
+```{r}
+BoxCox.lambda(d_points_ts)
+```
+
+
+For non-seasonal differentiation, case use `diff()` - can also take seasonal difference as well as lag-1.  
+
+```{r}
+autoplot(d_points_ts)
+```
+
+```{r}
+autoplot(diff(d_points_ts))
+```
+
+```{r}
+ggAcf(diff(d_points_ts))
+```
+
+
+# ARIMA
+
+AutoRegressive Integrated Moving Average models. 
+
+AR - multiple regression with lagged observations as predictors.  
+
+MA - multiple regression with lagged errors as predictors.  
+
+Can only work with stationary data (so diffrerence if not already stationary)  
+
+ARIMA(p, d, q)  
+
+p = number of ordinary AR (observation) lags
+d = number of lag-1 differences
+q = number of ordinary MA (error) lags
+
+*Can't compare ARIMA AICc between ARIMA and ETS* Us tsCV to do this.  
+
+
+```{r}
+# Create ARIMA model (NOTE can also set lambda)
+fit_arima_train <- auto.arima(train)
+
+```
+
+```{r}
+checkresiduals(fit_arima_train)
+```
+
+```{r}
+summary(fit_arima_train)
+```
+
+
+```{r}
+# Create forecast from ARIMA model
+
+fc_arima <- forecast(fit_arima_train, h = 22)
+```
+
+
+```{r}
+# Check accuracy
+accuracy(fc_arima, test)
+
+```
+
+```{r}
+# Show performance against test
+autoplot(fc_arima) +
+  autolayer(test, series = "Test Series")
+```
+
+```{r}
+# Apply forecast to future 10 years with AUTO ARIMA
+fit_arima_future <- auto.arima(d_points_ts)
+
+fc_arima_future <- forecast(fit_arima_future, h = 10)
+
+autoplot(fc_arima_future) +
+  autolayer(test, series = "Test Series")
+
+summary(fc_arima_future)
+
+```
+
+
+
+```{r}
+# Try tweaking the ARIMA (include drift)
+d_points_ts %>% 
+  Arima(order = c(0,1,1), include.constant = TRUE) %>% 
+  forecast(h = 10) %>%
+  autoplot()
+  
+```
+
+```{r}
+# TODO - create a seasonal ts and try an ARIMA model on it
+```
+
+
+# Dynamic Regression
+
+Can add matrix of predictor variable to auto.arima model.  
+
+Might be interesting to look at forecasting total points informed by kicks.   
+
+Dynamic harmonic regression incorporates seasonality with Fourier terms.  
+
+# TBATS
+
+Trigonometric terms for seasonality
+
+Box-Cox
+
+ARMA error
+
+Trend
+
+Seasonal  
+
+Useful but dangerous!!  

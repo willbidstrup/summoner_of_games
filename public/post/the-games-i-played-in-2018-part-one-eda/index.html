@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="author" content="Will Bidstrup">
+    <meta name="description" content="/">
+    <meta name="keywords" content="blog,developer,personal">
+    
+    <meta property="og:site_name" content="Data Science Explorer">
+    <meta property="og:title" content="
+  The games I played in 2018 Part One - EDA - Data Science Explorer
+">
+    <meta property="og:description" content="">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="/post/the-games-i-played-in-2018-part-one-eda/">
+    <meta property="og:image" content="/">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="/post/the-games-i-played-in-2018-part-one-eda/">
+    <meta name="twitter:image" content="/">
+
+    <base href="/">
+    <title>
+  The games I played in 2018 Part One - EDA - Data Science Explorer
+</title>
+
+    <link rel="canonical" href="/post/the-games-i-played-in-2018-part-one-eda/">
+    
+    <link  rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:400,700">
+    <link rel="stylesheet" href="//cdn.rawgit.com/necolas/normalize.css/master/normalize.css">
+    <link rel="stylesheet" href="/css/style.min.css">
+
+    
+
+    
+
+    <link rel="icon" type="image/png" href="/images/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/images/favicon-16x16.png" sizes="16x16">
+
+    
+
+    <meta name="generator" content="Hugo 0.41" />
+  </head>
+
+  <body class="">
+    <main class="wrapper">
+      <nav class="navigation">
+  <section class="container">
+    <a class="navigation-title" href="/">Data Science Explorer</a>
+    <input type="checkbox" id="menu-control"/>
+    <label class="menu-mobile  float-right " for="menu-control">
+      <span class="btn-mobile  float-right ">&#9776;</span>
+      <ul class="navigation-list">
+        
+          
+            <li class="navigation-item  align-center ">
+              <a class="navigation-link" href="/post/">Blog</a>
+            </li>
+          
+            <li class="navigation-item  align-center ">
+              <a class="navigation-link" href="/tags/">Tags</a>
+            </li>
+          
+            <li class="navigation-item  align-center ">
+              <a class="navigation-link" href="/about/">About</a>
+            </li>
+          
+        
+        
+      </ul>
+    </label>
+  </section>
+</nav>
+
+
+      <div class="content">
+        
+  <section class="container page">
+  <article>
+    <header>
+      <h1>The games I played in 2018 Part One - EDA</h1>
+    </header>
+
+    <pre class="r"><code># TODO - add lat and long details of gaming locations  
+# TODO - group games by RPG, digital and board  
+# TODO - add weekday names and weekend/weekday categories 
+# TODO - add morning/afternoon/evening categories  </code></pre>
+<p>In 2018 I decided to track every game I played using the BG Stats app. The app comes with some built in statistics which are useful but don’t answer all my questions.</p>
+<p>Today I’m going to do some exploratory work in R. I’m doing this pretty quickly, with lots of plotting and hacking around with different combinations of variables.</p>
+<p>Here are the packages I’m using;</p>
+<pre class="r"><code>library(jsonlite) # To read in the .json format which is default export from BG Stats
+library(here) # For relative file paths
+library(tidyverse)  # For general wrangling and exploration  
+library(padr) # To fill in or &#39;pad&#39; dates in a date series  </code></pre>
+<div id="import" class="section level1">
+<h1>Import</h1>
+<p>The export comes as a .json which is easy enough to read in.</p>
+<pre class="r"><code>d &lt;- fromJSON(&quot;data/BGStatsExport.json&quot;)</code></pre>
+<p>It’s a list with six elements, four of them are interesting and each can be transformed into a data frame.</p>
+<pre class="r"><code>games &lt;- data.frame(d[3])
+plays &lt;- data.frame(d[4])
+locations &lt;- data.frame(d[5])
+players &lt;- data.frame(d[6])</code></pre>
+</div>
+<div id="exploration" class="section level1">
+<h1>Exploration</h1>
+<p>So now I have a collection of data frames with info on the games, the plays, the locations and players. I’m going to poke around and see if there is anything worth following up.</p>
+<pre class="r"><code>ggplot(data = games %&gt;%
+         filter(games.bggYear != 0), aes(x = games.name, y = games.bggYear)) +
+  geom_point() + coord_flip() +
+  labs(title = &quot;2018 Games played by date of publication&quot;,
+       subtitle = &quot;Excluding games with missing info&quot;) +
+  theme_minimal()</code></pre>
+<p><img src="/post/2018-11-30-the-games-i-played-in-2018-part-one_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p>How many game titles were competitive?</p>
+<pre class="r"><code>ggplot(data = games, aes(x = games.cooperative, fill = games.cooperative)) +
+  geom_bar() +
+  labs(title = &quot;Most game titles were competitive&quot;,
+       subtitle = &quot;&quot;) +
+  theme_minimal()</code></pre>
+<p><img src="/post/2018-11-30-the-games-i-played-in-2018-part-one_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p>Looking at the ‘plays’ information with games should be interesting.</p>
+<pre class="r"><code># Create plays_plus, an enhanced data frame with elements from games.  
+
+## Create game ID lookup  
+game_id_lookup &lt;- games %&gt;%
+  select(games.id, games.name)
+
+## Join to plays
+plays_plus &lt;- plays %&gt;%
+  left_join(game_id_lookup, by = c(&quot;plays.gameRefId&quot; = &quot;games.id&quot;))</code></pre>
+<p>Now to find the quantity of time spent on each game.</p>
+<pre class="r"><code>time_per_game &lt;- plays_plus %&gt;%
+  group_by(games.name) %&gt;%
+  summarise(total_mins = sum(plays.durationMin, na.rm = T),
+            total_hours = round(total_mins /60, digits = 2))</code></pre>
+<pre class="r"><code>ggplot(data = time_per_game, aes(x = reorder(games.name, total_hours), y = total_hours)) +
+  geom_bar(stat = &quot;identity&quot;) +
+  coord_flip() +
+  labs(title = &quot;I played a lot of Dungeons &amp; Dragons&quot;,
+       subtitle = &quot;&quot;) +
+  theme_minimal()</code></pre>
+<p><img src="/post/2018-11-30-the-games-i-played-in-2018-part-one_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<pre class="r"><code>ggplot(data = plays_plus, aes(x = &quot;&quot;, y = plays.durationMin)) +
+  geom_point(alpha = 0.2)</code></pre>
+<p><img src="/post/2018-11-30-the-games-i-played-in-2018-part-one_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>I pre-process the date column.</p>
+<pre class="r"><code>glimpse(plays_plus)</code></pre>
+<pre><code>## Observations: 139
+## Variables: 21
+## $ plays.uuid             &lt;chr&gt; &quot;17B82776-4DF4-473C-B715-3D36B5DB9059&quot;,...
+## $ plays.ignored          &lt;lgl&gt; FALSE, FALSE, FALSE, FALSE, FALSE, FALS...
+## $ plays.rating           &lt;int&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ...
+## $ plays.scoringSetting   &lt;int&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ...
+## $ plays.playerScores     &lt;list&gt; [&lt;c(&quot;FALSE&quot;, &quot;FALSE&quot;, &quot;FALSE&quot;, &quot;FALSE&quot;...
+## $ plays.modificationDate &lt;chr&gt; &quot;2018-11-25 20:17:24&quot;, &quot;2018-11-24 21:3...
+## $ plays.playDate         &lt;chr&gt; &quot;2018-11-25 20:16:52&quot;, &quot;2018-11-24 21:1...
+## $ plays.manualWinner     &lt;lgl&gt; FALSE, FALSE, FALSE, FALSE, TRUE, FALSE...
+## $ plays.locationRefId    &lt;int&gt; 7, 2, 2, 2, 2, 11, 11, 11, 12, 12, 12, ...
+## $ plays.rounds           &lt;int&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ...
+## $ plays.usesTeams        &lt;lgl&gt; FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, F...
+## $ plays.bggId            &lt;int&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ...
+## $ plays.entryDate        &lt;chr&gt; &quot;2018-11-25 20:16:52&quot;, &quot;2018-11-24 21:1...
+## $ plays.playImages       &lt;chr&gt; &quot;[]&quot;, &quot;[]&quot;, &quot;[]&quot;, &quot;[]&quot;, &quot;[]&quot;, &quot;[]&quot;, &quot;[]...
+## $ plays.durationMin      &lt;int&gt; 270, 13, 20, 8, 17, 49, 14, 0, 390, 86,...
+## $ plays.board            &lt;chr&gt; &quot;Tales From The Loop&quot;, &quot;Cairo&quot;, &quot;Cairo&quot;...
+## $ plays.nemestatsId      &lt;int&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ...
+## $ plays.gameRefId        &lt;int&gt; 38, 41, 41, 41, 41, 12, 14, 6, 10, 39, ...
+## $ plays.bggLastSync      &lt;chr&gt; NA, NA, NA, NA, &quot;2018-11-24 20:37:03&quot;, ...
+## $ plays.comments         &lt;chr&gt; NA, NA, NA, NA, &quot;&quot;, NA, NA, NA, &quot;Hoard ...
+## $ games.name             &lt;chr&gt; &quot;Tales From The Loop&quot;, &quot;Codenames Duet&quot;...</code></pre>
+<pre class="r"><code>plays_plus &lt;- separate(plays_plus, col = plays.playDate, into = c(&quot;date&quot;,&quot;time&quot;), sep = &quot; &quot;)
+
+plays_plus$date &lt;- as.Date(plays_plus$date, format = &quot;%Y-%m-%d&quot;)</code></pre>
+<p>Now pad in all the days that I didn’t play</p>
+<pre class="r"><code>year_summary &lt;- plays_plus %&gt;%
+  pad %&gt;%
+  group_by(date, games.name) %&gt;%
+  summarise(total_mins = sum(plays.durationMin, na.rm = T),
+            total_hours = round(total_mins /60, digits = 2)) </code></pre>
+<pre><code>## pad applied on the interval: day</code></pre>
+<pre class="r"><code>year_summary$cum_hours &lt;- cumsum(year_summary$total_hours)
+
+
+dnd_compare &lt;- year_summary
+
+dnd_compare$dndYN &lt;- ifelse(year_summary$games.name == &quot;Dungeons &amp; Dragons 5E&quot;, &quot;D&amp;D&quot;, &quot;Other&quot;)
+
+dnd_compare &lt;- dnd_compare %&gt;%
+  group_by(date, dndYN) %&gt;%
+  summarise(total_hours = sum(total_hours)) %&gt;%
+mutate(cum_hours = cumsum(total_hours))
+
+
+
+year_game_score &lt;- year_summary %&gt;%
+  group_by(date) %&gt;%
+  summarise(total_hours = sum(total_hours, na.rm = T),
+            game_score = total_hours / 8) %&gt;%
+  mutate(avail_hours = 10)</code></pre>
+<pre class="r"><code>ggplot(data = year_game_score, aes(x = date, y = avail_hours, col = game_score)) +
+  geom_bar(stat = &quot;identity&quot;)</code></pre>
+<p><img src="/post/2018-11-30-the-games-i-played-in-2018-part-one_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<pre class="r"><code>ggplot(data = year_summary, aes(x = date, y = cum_hours)) +
+  geom_line()</code></pre>
+<p><img src="/post/2018-11-30-the-games-i-played-in-2018-part-one_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<pre class="r"><code>ggplot(data = year_summary, aes(x = date, y = total_hours)) +
+  geom_point(alpha = 0.2) +
+  geom_smooth()</code></pre>
+<pre><code>## `geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;</code></pre>
+<p><img src="/post/2018-11-30-the-games-i-played-in-2018-part-one_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+<pre class="r"><code>ggplot(data = year_summary, aes(x = &quot;&quot;, y = total_hours)) +
+  geom_boxplot()</code></pre>
+<p><img src="/post/2018-11-30-the-games-i-played-in-2018-part-one_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+<pre class="r"><code>ggplot(data = year_summary, aes(x = total_hours)) +
+  geom_histogram()</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="/post/2018-11-30-the-games-i-played-in-2018-part-one_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
+</div>
+
+  </article>
+</section>
+
+
+      </div>
+      
+    </main>
+
+    
+
+  <script src="/js/app.js"></script>
+  
+  </body>
+</html>

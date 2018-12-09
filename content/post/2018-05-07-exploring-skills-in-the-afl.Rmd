@@ -1,0 +1,124 @@
+---
+title: I don't want better goal kicking accuracy in the AFL
+author: Will Bidstrup
+date: '2018-05-07'
+slug: i-dont-want-better-goal-kicking-accuracy-in-the-afl
+categories:
+  - R
+tags:
+  - R
+  - visualisation
+  - AFL
+---
+
+**Update: There is far less of a relationship between goal accuracy and margin than originally published - I've fixed the error in code below which was using Away.Points instead of Away.Behinds in calculating goal-kicking accuracy.**
+
+Today I practice ggplot2 and investigate skills in the AFL.  
+
+The #AFLWonkWednesdays week 2 topic is;   
+
+*What is going on with skills?*
+
+*There has been a lot of chatter about the quality of skills and goal kicking in the AFL of late. The greats have had their say. Goal kicking is at HISTORIC lows (since 1990). The league is even on scoring trend watch.*
+
+*But what do the wonks think?*
+
+I think I am too new to AFL stats to call myself a wonk but I will tell you what I think - even though watching a slew of points is frustrating, it might be a signal of a better (more exciting, lower margin of victory) game.  
+
+**Update: After fixing the goal-kicking accuracy calculation I still don't care about increasing goal-accuracy as it seems to have no effect on if a game will be tight or not, which is my 'success' criteria**  
+
+```{r, include = FALSE}
+install.packages("tidyverse", repos="http://cran.rstudio.com/")
+install.packages("here", repos="http://cran.rstudio.com/")
+install.packages("ggthemes", repos="http://cran.rstudio.com/")
+install.packages("devtools", repos="http://cran.rstudio.com/")
+devtools::install_github("jimmyday12/fitzRoy")
+install.packages("viridis", repos="http://cran.rstudio.com/")
+```
+
+```{r, message = FALSE}
+# Packages
+library(tidyverse)
+library(here)
+library(ggthemes)
+library(devtools)
+library(fitzRoy)
+library(viridis)
+
+```
+
+Big thanks to [Jimmy Day](https://twitter.com/jamesday87) for the data;
+
+```{r}
+d <- get_match_results()
+```
+
+```{r}
+glimpse(d)
+```
+
+# Margin
+
+```{r}
+ggplot(data = d, aes(x = Date, y = Margin)) +
+  geom_boxplot(aes(group = cut_interval(Date, n = 100))) +
+  theme_tufte() +
+  labs(title = "Margin in AFL over time")
+```
+
+# Goal-kicking accuracy
+
+```{r}
+# Define goal accuracy = goal scoring shots / total scoring shots
+d$goal_accuracy <- round((d$Home.Goals + d$Away.Goals) / (d$Home.Goals + d$Away.Goals + d$Home.Behinds + d$Away.Behinds), digits = 2)
+```
+
+```{r}
+ggplot(data = d, aes(x = Date, y = goal_accuracy)) +
+  geom_boxplot(aes(group = cut_interval(Date, n = 100))) +
+  theme_tufte() +
+  labs(title = "Goal-kicking accuracy in AFL over time")
+```
+
+
+# Margin and goal-kicking accuracy
+
+Class any game that has a margin that falls within the default IQR from base R as 'exciting'.  
+
+```{r}
+summary(abs(d$Margin)) # Convert margin to absolute because negative margin doesn't make sense to me in this context
+```
+
+```{r}
+d$game_type <- ifelse(abs(d$Margin) >= 0 & abs(d$Margin) <= 46, "exciting", "boring") # Use ranges from summary
+d$game_type <- as.factor(d$game_type)
+```
+
+
+```{r}
+ggplot(data = d, aes(x = goal_accuracy, y = abs(Margin), col = game_type)) +
+  geom_point(alpha = 0.4) +
+  theme_tufte() +
+  geom_smooth() +
+  scale_color_manual(values=c( "#91a3b0", "#7eb233")) +
+  labs(title = "Goal-kicking accuracy and tight margins",
+       subtitle = "More accuracy might mean a less exciting game",
+       x = "Combined goal-kicking accuracy (% of scoring shots that are goals from both sides)",
+       y = "Absolute margin of game",
+       caption = expression(paste(italic("Source: AFL games 1897 to 2018 c/o fitzRoy package"))))
+```
+
+
+```{r}
+ggplot(data = d, aes(x = goal_accuracy, y = abs(Margin))) +
+  stat_density_2d(geom = "tile", aes(fill = ..density..), contour = FALSE)+
+  scale_fill_viridis() +
+  theme_tufte() +
+  labs(title = "Goal-kicking accuracy and tight margins",
+       subtitle = "",
+       x = "Goal-kicking accuracy (% of scoring shots that are goals)",
+       y = "Absolute margin of game",
+       caption = expression(paste(italic("Source: AFL games 1897 to 2018 c/o fitzRoy package"))))
+```
+
+

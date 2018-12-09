@@ -1,0 +1,220 @@
+---
+title: Forecasting AFL Mean Score
+author: Will Bidstrup
+date: '2018-07-09'
+slug: forecasting-afl-mean-score
+categories:
+  - R
+tags:
+  - forecasting
+---
+
+Today I practice some time-series forecasting techniques in R by applying them to total scores in the AFL. 
+
+The question I am interested in answering is - *"what kind of average scores should we expect in AFL over next 10 years"*  
+
+
+```{r, include = FALSE}
+install.packages("tidyverse", repos="http://cran.rstudio.com/")
+install.packages("here", repos="http://cran.rstudio.com/")
+install.packages("ggthemes", repos="http://cran.rstudio.com/")
+install.packages("forecast", repos="http://cran.rstudio.com/")
+install.packages("padr", repos="http://cran.rstudio.com/")
+install.packages("devtools", repos="http://cran.rstudio.com/")
+devtools::install_github("jimmyday12/fitzRoy")
+```
+
+Here are the packages used;  
+```{r, message = FALSE}
+# Packages
+library(tidyverse) # For everything
+library(here) # For project-oriented workflow
+library(ggthemes) # For nice plot themes
+library(forecast) # For nice plot themes
+library(devtools) # For non-CRAN packages
+library(fitzRoy) # Data source
+```
+
+# Set up and EDA
+
+I create a data set for simple time-series analysis. From fitzRoy package, I have the match results for every game since 1897. I am interested in looking at one metric per year which I will call "Mean Total Score"; this tells us what the average total score in any given year is. 
+
+Here is the approach to creating the metric;  
+- take match results  
+- convert into a longer format (one game per row)  
+- summarise by year and calculate mean score for that year  
+
+```{r}
+d <- get_match_results()
+d_long <- convert_results(d)
+
+# Create seperate vars for date aspects
+d_score <- d_long %>%
+  mutate(Date_Full = Date) %>%
+  separate(Date, c("Year", "Month", "Day"), sep = "-")
+
+d_score$score <- as.integer(d_score$Points) 
+
+d_score <- d_score %>%
+  group_by(Year) %>%
+  summarize(Mean_Total_Score = mean((score), na.rm = TRUE))
+
+# Make ts object
+d_score_ts <- ts(d_score[, 2], start = c(1897,1), frequency = 1)
+
+```
+
+A look at the history shows us a low of `r round(min(d_score$Mean_Total_Score))` pre 1900 before they invented kicking straight, a high of `r round(max(d_score$Mean_Total_Score))` in the glorious early 80's and a mean for the entire series of `r round(mean(d_score$Mean_Total_Score))`. 
+
+
+```{r}
+autoplot(d_score_ts) +
+  geom_hline(yintercept = round(mean(d_score$Mean_Total_Score)), linetype = "dashed") +
+  labs(title = "Mean Total Score per year in AFL",
+       subtitle = "Mean for series shown as dashed line (81)",
+       x = "Time",
+       y = "Mean Total Score")
+```
+
+
+A histogram shows that the most commonly occuring Mean Total Score has been between somewhere between 90 and 100 points
+
+```{r}
+ggplot(data = d_score, aes(x = Mean_Total_Score)) +
+  geom_histogram(binwidth = 1) +
+    geom_vline(xintercept = round(mean(d_score$Mean_Total_Score)), linetype = "dashed") +
+  coord_flip() +
+  labs(title = "Mean Total Score in AFL",
+       subtitle = "Mean for series shown as dashed line",
+       x = "Mean Total Score",
+       y = "Frequency")
+```
+
+
+A boxplot shows a median `r round(median(d_score$Mean_Total_Score))` (shown as thick black line) which sits higher than the mean of `r round(mean(d_score$Mean_Total_Score))` (shown as dashed line).
+
+
+```{r}
+ggplot(data = d_score, aes(x = "Distribution", y = Mean_Total_Score)) +
+  geom_boxplot() +
+  stat_summary(fun.y = mean, geom = "errorbar", aes(ymax = ..y.., ymin = ..y..),
+                 width = .75, linetype = "dashed") +
+  labs(title = "Mean Total Score in AFL",
+       subtitle = "Mean for series shown as dashed line",
+       x = "",
+       y = "Mean Total Score")
+```
+
+
+# Model to training set
+
+I think I have enough data to warrant creating a training and test set.  I'll create forecasting models based on the training set from 1897 to 1995 and then apply them to the full data set inclusive of info up until 2018. Each model can then be tested against what really happened and we can see which performs best. 
+
+```{r}
+train <- window(d_score_ts, end = 1995) # Use approx 80% of years as training
+test <- window(d_score_ts, start = 1996) 
+```
+
+I create four models;  
+- Naive  
+- Mean    
+- SES (Simple Exponential Smoothing)    
+- ARIMA (Auto Regressive Integrated Moving Average)  
+
+I'm using defaults, the point here is to create multiple models so they can be compared against each other. I'm also excluding anlaysis of the residuals of these models, which is also important but not the focus of this exercise. This is an example of a quick look at throwing a few forecasting techniques at a problem before optimizing.    
+
+```{r}
+fit_naive <- naive(train, h = 22)
+fit_mean <- meanf(train, h = 22)
+fit_ses <- ses(train, h = 22)
+fit_arima_train <- auto.arima(train)
+fit_arima_train <- forecast(fit_arima_train, h = 22)
+```
+
+# Check performance against test set and measure accuracy
+
+Now I can plot the forecast results from each modeling method against the test series. Visual inspection can show us that the Naive and SES are probably closest, although none of the models look great.  
+```{r}
+autoplot(fit_naive) +
+  autolayer(test, series = "Test Series")
+```
+
+```{r}
+autoplot(fit_mean) +
+  autolayer(test, series = "Test Series")
+```
+
+```{r}
+autoplot(fit_ses) +
+  autolayer(test, series = "Test Series")
+```
+
+```{r}
+autoplot(fit_arima_train) +
+  autolayer(test, series = "Test Series")
+```
+
+
+Now that I have the four models, I can compare accuracy by creating a matrix of the results and comparing RMSE against test.     
+
+```{r}
+# Create accuracy output for each model
+acc_naive <- accuracy(fit_naive, test)
+acc_mean <- accuracy(fit_mean, test)
+acc_ses <- accuracy(fit_ses, test)
+acc_arima <-accuracy(fit_arima_train, test)
+```
+
+```{r}
+# Pull the RMSE value against test set from the accuracy fucntion output
+rmse_naive <- acc_naive[["Test set", "RMSE"]]
+rmse_mean <- acc_mean[["Test set", "RMSE"]]
+rmse_ses <- acc_ses[["Test set", "RMSE"]]
+rmse_arima <- acc_arima[["Test set", "RMSE"]]
+```
+
+```{r}
+# Create df of the RMSE against test results
+models <- c("Naive", "Mean", "SES", "Arima")
+rmse <- c(rmse_naive, rmse_mean, rmse_ses, rmse_arima)
+acc_comp <- data.frame(models, rmse)
+```
+
+
+Finally I can plot the RMSE of each modelling technique which indeed shows that Naive and SES performed most strongly against the test data.  
+```{r}
+ggplot(data = acc_comp, aes(x = reorder(models, -rmse), y = rmse, col = models)) +
+  geom_bar(stat = "identity") +
+  labs(title = "RMSE comparison of Mean Total Points forecast models",
+       subtitle = "Trained 1897-1996, Tested 1997-2018",
+       x = "Forecasting method",
+       y = "Root Mean Squared Error")
+```
+
+# Apply best model to future
+
+Now I will apply the best perfoming model (naive) and create a forecast ten years into the future. Note the 80 and 95 ranges - it's very unlikely we will see Mean Total Scores below 60 or a return to the high-scoring 1980s.  
+
+```{r}
+fc_naive <- naive(d_score_ts, h = 10) # h value is number of time periods to forecast
+
+autoplot(fc_naive) +
+  autolayer(test, series = "Test Series") +
+  geom_hline(yintercept = round(mean(d_score$Mean_Total_Score)), linetype = "dashed") +
+  labs(title = "Naive forecast method 10 years ahead",
+       subtitle = "Result is close to existing mean (dashed line)",
+       x = "Time",
+       y = "Mean Total Score")
+```
+
+# Conclusion
+
+Against the test set in terms of RMSE, the naive method of forecasting performed most strongly, while the mean method performed the worst.  
+But, when the naive method is applied to the full set of data that has come before it, it forecasts the Mean Total Score at 82.7 which is very close to the mean of the entire existing data set which is `r round(mean(d_score$Mean_Total_Score))`.  
+No technique successfully forecast the downward trend since 2000.    
+This looks like a good example of regression to the mean although the mean of the set does appear to be rising (78 when calculated 1897-1996 vs `r round(mean(d_score$Mean_Total_Score))` for 1897-2018).  
+This has been a simple look at a straight time-series forecast. In a future post I will incorporate other metrics into the forecasting to see if I can get a better result against the test set (especially forecasting the downward trend).  
+
+
+
+

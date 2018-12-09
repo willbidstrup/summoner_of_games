@@ -1,0 +1,180 @@
+---
+title: Animated AFL
+author: Will Bidstrup
+date: '2018-06-07'
+slug: animated-afl
+categories:
+  - R
+tags:
+  - R
+  - visualisation
+  - AFL
+---
+
+Today I explore the [gganimate package](https://github.com/dgrtwo/gganimate) with AFL data from the [fitzRoy package](https://github.com/jimmyday12/fitzRoy). 
+
+
+```{r, include = FALSE}
+install.packages("tidyverse", repos="http://cran.rstudio.com/")
+install.packages("here", repos="http://cran.rstudio.com/")
+install.packages("ggthemes", repos="http://cran.rstudio.com/")
+install.packages("devtools", repos="http://cran.rstudio.com/")
+devtools::install_github("jimmyday12/fitzRoy")
+install.packages("viridis", repos="http://cran.rstudio.com/")
+devtools::install_github("dgrtwo/gganimate")
+devtools::install_github("yihui/animation")
+```
+
+Here are the packages used.  
+```{r, message = FALSE}
+# Packages
+library(tidyverse) # For everything
+library(here) # For project-oriented workflow
+library(ggthemes) # For nice plot themes
+library(devtools) # For non-CRAN packages
+library(fitzRoy) # Data source
+library(viridis) # Dependancy
+library(gganimate) # For animation
+library(animation) # For animation
+```
+
+Load results data - easy with the fitzRoy package.    
+```{r}
+d <- get_match_results()
+```
+
+
+# Goal kicking accuracy of home teams
+
+I start by looking at goal kicking accuracy for home teams only. Why only home teams? Because of the way the data is set up it should be easy to 'frame' an animation by Home Team. I want to get an animation working first before doing anything fancier like merging the Home and Away goal kicking accuracy into a single view per team.    
+
+Here is my metric - 'accuracy' being the percent of scoring shots that are goals.   
+```{r}
+# Define goal accuracy = goal scoring shots / total scoring shots
+d$goal_accuracy <- round((d$Home.Goals  / (d$Home.Goals + d$Home.Behinds)), digits = 2)
+```
+
+This plot will show the goal kicking accuracy of each game played by a Home Team. Note the `frame = ` argument.  
+```{r}
+p1 <- ggplot(data = d, aes(x = Date, y = goal_accuracy, frame = Home.Team, col = Home.Team)) + # frame means the plot can be animated
+  geom_point(alpha = 0.2) +
+  theme_tufte() +
+  geom_smooth() +
+  labs(title = "AFL club goal kicking accuracy over time",
+       subtitle = "Home games only",
+       x = "",
+       y = "Goal % of scoring shots",
+       caption = expression(paste(italic("Source: AFL games 1897 to 2018 c/o fitzRoy package"))))
+
+```
+
+Here is what it looks like when animated - (note that I have linked directly to the output.gif). 
+```{r}
+# Example how to a save as gif
+gganimate(p1, "output.gif")
+```
+
+![](/images/output.gif)
+
+A static view of each frame is an interesting alternative to using pwalk or faceting to show multiple plots...
+```{r}
+gganimate(p1)
+```
+
+
+
+# Comparing goal kicking accuracy at home or away games by team
+
+## Pre-process
+
+To compare the goal kicking accuracy of each team over time I will need to do some data pre-processing.
+
+The default results dataframe looks like this;
+
+```{r}
+glimpse(d)
+```
+
+I need a data frame where each team is represented on each date, with a label for if the game was home or away for them. Here are the steps taken to get there.   
+
+```{r}
+# Select relevant variables
+d1 <- d %>%
+  select(Date, Home.Team, Home.Goals, Home.Behinds, Away.Team, Away.Goals, Away.Behinds)
+```
+
+```{r}
+# Calculate goal accuracy for each type of game
+d1 <- d1 %>%
+  mutate(home_acc = round((d$Home.Goals  / (d$Home.Goals + d$Home.Behinds)), digits = 2),
+         away_acc = round((d$Away.Goals  / (d$Away.Goals + d$Away.Behinds)), digits = 2))
+```
+
+```{r}
+# Again select only relevant variables
+d1 <- d1 %>%
+  select(Date, Home.Team, Away.Team, home_acc, away_acc)
+```
+
+
+```{r}
+# Gather teams, now we have each team on a seperate line per date
+d2 <- d1 %>%
+  gather("type", "team", 2:3)
+```
+
+
+```{r}
+# But, each line has both home and away accuracy - need to replace the redundant value with NA so each line has just the relevant accuracy (home or away) for each team
+d2$home_acc <- ifelse(d2$type == "Home.Team", d2$home_acc, NA)
+d2$away_acc <- ifelse(d2$type == "Away.Team", d2$away_acc, NA)
+
+```
+
+
+```{r}
+# Finally, create a new variable which is the merged accuracy - this is so that the 'type' variable can be used to distinguish between home and away games (rather than two seperate accuracy variables)
+d3 <- d2 
+d3$accuracy <- ifelse(is.na(d3$away_acc), d3$home_acc, d3$away_acc)
+```
+
+
+## Plot
+
+```{r}
+p2 <- ggplot(data = d3, aes(x = Date, y = accuracy, frame = team, col = type)) +
+  geom_point(alpha = 0.2) +
+  geom_smooth(se = FALSE) + # Turn off error marking for better visual
+  scale_color_manual(values = c("#cc3333", "#669966")) +
+  theme_tufte() +
+  labs(title = "AFL club goal kicking accuracy over time",
+       subtitle = "Comparison home vs away games",
+       x = "",
+       y = "Goal % of scoring shots",
+       caption = expression(paste(italic("Source: AFL games 1897 to 2018 c/o fitzRoy package"))))
+```
+
+```{r}
+# Example how to a save as gif
+gganimate(p2, "output2.gif")
+```
+![](/images/output2.gif)
+
+```{r, warning = FALSE}
+gganimate(p2)
+```
+
+# Conclusions
+
+Using an animation is a good way to get a look at the way a number of categories compare to each other. Personally I find the animation a relaxing and hypnotic way to explore - then refer to the 'static' animation for a closer look.
+
+Some observations about goal kicking accuracy;  
+
+- Looks like accuracy in general is better at home than away although this is not always the case    
+- Some teams are more erratic than others over time (looking at you Port Adelaide)    
+- In general looks like goal kicking accuracy has improved over time for most clubs  
+
+
+Lots to explore more here another time.      
+
+

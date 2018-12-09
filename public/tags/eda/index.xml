@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Eda on Data Science Explorer</title>
+    <link>/tags/eda/</link>
+    <description>Recent content in Eda on Data Science Explorer</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Fri, 07 Dec 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/eda/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>The games I played in 2018 Part One - EDA</title>
+      <link>/post/the-games-i-played-in-2018-part-one-eda/</link>
+      <pubDate>Fri, 07 Dec 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/the-games-i-played-in-2018-part-one-eda/</guid>
+      <description># TODO - add lat and long details of gaming locations # TODO - group games by RPG, digital and board # TODO - add weekday names and weekend/weekday categories # TODO - add morning/afternoon/evening categories  In 2018 I decided to track every game I played using the BG Stats app. The app comes with some built in statistics which are useful but don’t answer all my questions.
+Today I’m going to do some exploratory work in R.</description>
+    </item>
+    
+    <item>
+      <title>EDA with R and PostgreSQL</title>
+      <link>/post/eda-with-r-and-postgresql/</link>
+      <pubDate>Mon, 27 Aug 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/eda-with-r-and-postgresql/</guid>
+      <description>Today I connect my R session to a PostgreSQL database.
+I’m using the tutorial database of DVD rentals and this.
+My objectives are to;
+ learn how to connect R to a database
+ practice using SQL queries within R Markdown
+ uncover material to use in the SQL project for the Udacity Programming For Data Science Nanodegree  library(tidyverse) library(here) library(ggthemes) library(RPostgreSQL) drv &amp;lt;- dbDriver(&amp;quot;PostgreSQL&amp;quot;) con &amp;lt;- dbConnect(drv, dbname = &amp;quot;dvdrental&amp;quot;, host = &amp;quot;localhost&amp;quot;, port = 5432, user = &amp;quot;postgres&amp;quot;, password = pw) Exploring the database There are 15 tables in this relational database, connected as follows;</description>
+    </item>
+    
+    <item>
+      <title>One Hour EDA - fitzRoy R Package</title>
+      <link>/post/one-hour-eda-fitzroy-r-package/</link>
+      <pubDate>Sun, 01 Jul 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/one-hour-eda-fitzroy-r-package/</guid>
+      <description>Today I take a closer look at the info available in the fitzRoy package.
+ This is such a great example of what is happening in the R community these days, the package really takes away the difficulty out of scraping the web for data.
+I will limit myself to one hour. This will cover all the poking and prodding of the data and the writing and editing of this post.</description>
+    </item>
+    
+  </channel>
+</rss>

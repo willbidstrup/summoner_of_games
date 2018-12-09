@@ -1,0 +1,215 @@
+---
+title: One Hour EDA - fitzRoy R Package
+author: Will Bidstrup
+date: '2018-07-01'
+slug: one-hour-eda-fitzroy-r-package
+categories:
+  - R
+tags:
+  - R
+  - AFL
+  - EDA
+---
+
+  Today I take a closer look at the info available in the [fitzRoy package](https://github.com/jimmyday12/fitzRoy). 
+  
+![](/images/AFL/fitz_hex.png)
+  
+  This is such a great example of what is happening in the R community these days, the package really takes away the difficulty out of scraping the web for data.  
+
+I will limit myself to **one hour**. This will cover all the poking and prodding of the data and the writing and editing of this post.
+
+My goal is to look a bit more deeply at the data in the package to spur my imagination for future more in-depth reports.
+
+My time starts now...
+
+
+# Packages
+
+Here is my setup (install before calling library).  
+
+```{r, include = FALSE}
+install.packages("tidyverse", repos="http://cran.rstudio.com/")
+install.packages("here", repos="http://cran.rstudio.com/")
+install.packages("ggthemes", repos="http://cran.rstudio.com/")
+install.packages("devtools", repos="http://cran.rstudio.com/")
+devtools::install_github("jimmyday12/fitzRoy")
+install.packages("GGally", repos="http://cran.rstudio.com/")
+
+```
+
+```{r, message = FALSE}
+# Packages
+library(tidyverse) # For everything
+library(here) # For project-oriented workflow
+library(ggthemes) # For nice plot themes
+library(devtools) # For non-CRAN packages
+library(fitzRoy) # Data source
+library(GGally) # Correlation plot
+```
+
+
+# Explore
+
+I'm following along from the [documentation](https://github.com/jimmyday12/fitzRoy/blob/master/README.md).  
+
+
+## Match Results
+
+I've used this before, it's the first suggested data set. The stats are basic but it's every game since 1897!
+
+```{r}
+d <- get_match_results()
+```
+
+Use glimpse to get a feel for the data;
+
+```{r}
+glimpse(d)
+```
+
+
+Example visual;
+
+```{r}
+
+ggplot(data = d, aes(x = Date, y = Margin)) +
+  geom_point(alpha = 0.2) +
+  geom_smooth() +
+  labs(title = "Margin trend in AFL",
+        x = "Date",
+        y = "Margin (pts)",
+        caption = expression(paste(italic("Source: AFL games 1897 to 2018 c/o fitzRoy package"))))
+
+
+```
+
+
+## Tidy Match Results
+
+There is a helpful functionto that shapes the results data into a longer format.  I could have used this previously when calculating the [Home/Away difference in goal kicking accuracy](https://www.datascienceexplorer.com/post/animated-afl/).  
+
+```{r}
+d_long <- convert_results(d)
+```
+
+```{r}
+glimpse(d_long)
+```
+
+Example visual;
+
+```{r}
+
+
+ggplot(data = d_long, aes(x = Date, y = Margin, col = Round.Type)) +
+  geom_point(alpha = 0.2) +
+  geom_boxplot() +
+  facet_grid(. ~ Round.Type) +
+  labs(title = "Margin trend in AFL",
+       subtitle = "Tighter in finals (slightly)",
+        x = "Date",
+        y = "Margin (pts)",
+        caption = expression(paste(italic("Source: AFL games 1897 to 2018 c/o fitzRoy package"))))
+
+```
+
+
+
+## Fixture
+
+There is a function to 'get fixture'. I admit I don't know what this means, but on inspection it looks like it is a list of all the games that will be played in current year (excluding finals). 
+```{r}
+d_fixture <- get_fixture()
+```
+
+```{r}
+glimpse(d_fixture)
+```
+
+
+Example visual;
+
+```{r}
+# table showing number of games by venue
+venue_games <- d_fixture %>%
+  group_by(Venue,) %>%
+  summarise(games = n())
+
+# plot
+ggplot(d = venue_games, aes(x = reorder(Venue, games), y = games)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+    labs(title = "Where AFL will be played in 2018",
+       subtitle = "",
+        x = "Venue",
+        y = "Number of games",
+        caption = expression(paste(italic("Source: AFL 2018 fixture c/o fitzRoy package"))))
+```
+
+
+## Footywire
+
+Footywire stats are more detailed, and go back to 2010.  Lots of stats here, I don't understand all of them! Will start with a correlation plot to see what might be related.  
+
+```{r}
+d_fwire <- update_footywire_stats()
+```
+
+```{r}
+glimpse(d_fwire)
+```
+
+Example visual;
+
+```{r}
+ggcorr(d_fwire, method = c("pairwise", "pearson"), nbreaks = 9, hjust = .75, vjust = 0.5, layout.exp = 2) +
+  labs(title = "Correlation of Footywire dataset numeric variables")
+
+```
+
+
+
+## Weather
+
+This is awesome. There is weather data for 2017!  
+
+```{r}
+d_weather<- fitzRoy::results_weather %>%
+  filter(Season == 2017)
+```
+
+```{r}
+glimpse(d_weather)
+```
+
+
+Example visual;
+
+```{r}
+ggplot(data = d_weather, aes(x = Margin, y = Rainfall, col = Rainfall)) +
+  geom_point(alpha = 0.2) +
+  geom_smooth() +
+     labs(title = "Does higher rainfall lead to tigher games?",
+       subtitle = "Maybe??",
+        x = "Margin",
+        y = "Rainfall",
+        caption = expression(paste(italic("Source: AFL 2017 + weather c/o fitzRoy package"))))
+```
+
+
+## Tips
+
+Finally, there is tipping info here. I'm really looking forward to exploring the different methods used to arrive at these.  
+
+```{r}
+d_tips <- get_squiggle_data("tips")
+```
+*Didn't get time to explore here - next time!*
+
+
+# Conclusion
+
+I realise I've just pretty much gone through the documentation, but since I learn from doing, this is a good thing. I have a much better understanding of the info available in this package and am excited about having a closer look soon.  
+
+

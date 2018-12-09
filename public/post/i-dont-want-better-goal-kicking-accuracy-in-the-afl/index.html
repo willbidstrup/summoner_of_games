@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="author" content="Will Bidstrup">
+    <meta name="description" content="/">
+    <meta name="keywords" content="blog,developer,personal">
+    
+    <meta property="og:site_name" content="Data Science Explorer">
+    <meta property="og:title" content="
+  I don&#39;t want better goal kicking accuracy in the AFL - Data Science Explorer
+">
+    <meta property="og:description" content="">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="/post/i-dont-want-better-goal-kicking-accuracy-in-the-afl/">
+    <meta property="og:image" content="/">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="/post/i-dont-want-better-goal-kicking-accuracy-in-the-afl/">
+    <meta name="twitter:image" content="/">
+
+    <base href="/">
+    <title>
+  I don&#39;t want better goal kicking accuracy in the AFL - Data Science Explorer
+</title>
+
+    <link rel="canonical" href="/post/i-dont-want-better-goal-kicking-accuracy-in-the-afl/">
+    
+    <link  rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:400,700">
+    <link rel="stylesheet" href="//cdn.rawgit.com/necolas/normalize.css/master/normalize.css">
+    <link rel="stylesheet" href="/css/style.min.css">
+
+    
+
+    
+
+    <link rel="icon" type="image/png" href="/images/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/images/favicon-16x16.png" sizes="16x16">
+
+    
+
+    <meta name="generator" content="Hugo 0.41" />
+  </head>
+
+  <body class="">
+    <main class="wrapper">
+      <nav class="navigation">
+  <section class="container">
+    <a class="navigation-title" href="/">Data Science Explorer</a>
+    <input type="checkbox" id="menu-control"/>
+    <label class="menu-mobile  float-right " for="menu-control">
+      <span class="btn-mobile  float-right ">&#9776;</span>
+      <ul class="navigation-list">
+        
+          
+            <li class="navigation-item  align-center ">
+              <a class="navigation-link" href="/post/">Blog</a>
+            </li>
+          
+            <li class="navigation-item  align-center ">
+              <a class="navigation-link" href="/tags/">Tags</a>
+            </li>
+          
+            <li class="navigation-item  align-center ">
+              <a class="navigation-link" href="/about/">About</a>
+            </li>
+          
+        
+        
+      </ul>
+    </label>
+  </section>
+</nav>
+
+
+      <div class="content">
+        
+  <section class="container page">
+  <article>
+    <header>
+      <h1>I don&#39;t want better goal kicking accuracy in the AFL</h1>
+    </header>
+
+    <p><strong>Update: There is far less of a relationship between goal accuracy and margin than originally published - I’ve fixed the error in code below which was using Away.Points instead of Away.Behinds in calculating goal-kicking accuracy.</strong></p>
+<p>Today I practice ggplot2 and investigate skills in the AFL.</p>
+<p>The #AFLWonkWednesdays week 2 topic is;</p>
+<p><em>What is going on with skills?</em></p>
+<p><em>There has been a lot of chatter about the quality of skills and goal kicking in the AFL of late. The greats have had their say. Goal kicking is at HISTORIC lows (since 1990). The league is even on scoring trend watch.</em></p>
+<p><em>But what do the wonks think?</em></p>
+<p>I think I am too new to AFL stats to call myself a wonk but I will tell you what I think - even though watching a slew of points is frustrating, it might be a signal of a better (more exciting, lower margin of victory) game.</p>
+<p><strong>Update: After fixing the goal-kicking accuracy calculation I still don’t care about increasing goal-accuracy as it seems to have no effect on if a game will be tight or not, which is my ‘success’ criteria</strong></p>
+<pre class="r"><code># Packages
+library(tidyverse)
+library(here)
+library(ggthemes)
+library(devtools)
+library(fitzRoy)
+library(viridis)</code></pre>
+<p>Big thanks to <a href="https://twitter.com/jamesday87">Jimmy Day</a> for the data;</p>
+<pre class="r"><code>d &lt;- get_match_results()</code></pre>
+<pre class="r"><code>glimpse(d)</code></pre>
+<pre><code>## Observations: 15,298
+## Variables: 16
+## $ Game         &lt;dbl&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15...
+## $ Date         &lt;date&gt; 1897-05-08, 1897-05-08, 1897-05-08, 1897-05-08, ...
+## $ Round        &lt;chr&gt; &quot;R1&quot;, &quot;R1&quot;, &quot;R1&quot;, &quot;R1&quot;, &quot;R2&quot;, &quot;R2&quot;, &quot;R2&quot;, &quot;R2&quot;, &quot;...
+## $ Home.Team    &lt;chr&gt; &quot;Fitzroy&quot;, &quot;Collingwood&quot;, &quot;Geelong&quot;, &quot;Sydney&quot;, &quot;S...
+## $ Home.Goals   &lt;int&gt; 6, 5, 3, 3, 6, 4, 3, 9, 6, 5, 12, 8, 5, 5, 2, 11,...
+## $ Home.Behinds &lt;int&gt; 13, 11, 6, 9, 4, 6, 8, 10, 5, 9, 6, 11, 14, 11, 8...
+## $ Home.Points  &lt;int&gt; 49, 41, 24, 27, 40, 30, 26, 64, 41, 39, 78, 59, 4...
+## $ Away.Team    &lt;chr&gt; &quot;Carlton&quot;, &quot;St Kilda&quot;, &quot;Essendon&quot;, &quot;Melbourne&quot;, &quot;...
+## $ Away.Goals   &lt;int&gt; 2, 2, 7, 6, 5, 8, 10, 3, 5, 7, 6, 0, 3, 5, 6, 7, ...
+## $ Away.Behinds &lt;int&gt; 4, 4, 5, 8, 6, 2, 6, 1, 7, 8, 5, 2, 4, 3, 6, 4, 8...
+## $ Away.Points  &lt;int&gt; 16, 16, 47, 44, 36, 50, 66, 19, 37, 50, 41, 2, 22...
+## $ Venue        &lt;chr&gt; &quot;Brunswick St&quot;, &quot;Victoria Park&quot;, &quot;Corio Oval&quot;, &quot;L...
+## $ Margin       &lt;int&gt; 33, 25, -23, -17, 4, -20, -40, 45, 4, -11, 37, 57...
+## $ Season       &lt;dbl&gt; 1897, 1897, 1897, 1897, 1897, 1897, 1897, 1897, 1...
+## $ Round.Type   &lt;chr&gt; &quot;Regular&quot;, &quot;Regular&quot;, &quot;Regular&quot;, &quot;Regular&quot;, &quot;Regu...
+## $ Round.Number &lt;int&gt; 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5...</code></pre>
+<div id="margin" class="section level1">
+<h1>Margin</h1>
+<pre class="r"><code>ggplot(data = d, aes(x = Date, y = Margin)) +
+  geom_boxplot(aes(group = cut_interval(Date, n = 100))) +
+  theme_tufte() +
+  labs(title = &quot;Margin in AFL over time&quot;)</code></pre>
+<p><img src="/post/2018-05-07-exploring-skills-in-the-afl_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+</div>
+<div id="goal-kicking-accuracy" class="section level1">
+<h1>Goal-kicking accuracy</h1>
+<pre class="r"><code># Define goal accuracy = goal scoring shots / total scoring shots
+d$goal_accuracy &lt;- round((d$Home.Goals + d$Away.Goals) / (d$Home.Goals + d$Away.Goals + d$Home.Behinds + d$Away.Behinds), digits = 2)</code></pre>
+<pre class="r"><code>ggplot(data = d, aes(x = Date, y = goal_accuracy)) +
+  geom_boxplot(aes(group = cut_interval(Date, n = 100))) +
+  theme_tufte() +
+  labs(title = &quot;Goal-kicking accuracy in AFL over time&quot;)</code></pre>
+<p><img src="/post/2018-05-07-exploring-skills-in-the-afl_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+</div>
+<div id="margin-and-goal-kicking-accuracy" class="section level1">
+<h1>Margin and goal-kicking accuracy</h1>
+<p>Class any game that has a margin that falls within the default IQR from base R as ‘exciting’.</p>
+<pre class="r"><code>summary(abs(d$Margin)) # Convert margin to absolute because negative margin doesn&#39;t make sense to me in this context</code></pre>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##    0.00   12.25   27.00   32.28   46.00  190.00</code></pre>
+<pre class="r"><code>d$game_type &lt;- ifelse(abs(d$Margin) &gt;= 0 &amp; abs(d$Margin) &lt;= 46, &quot;exciting&quot;, &quot;boring&quot;) # Use ranges from summary
+d$game_type &lt;- as.factor(d$game_type)</code></pre>
+<pre class="r"><code>ggplot(data = d, aes(x = goal_accuracy, y = abs(Margin), col = game_type)) +
+  geom_point(alpha = 0.4) +
+  theme_tufte() +
+  geom_smooth() +
+  scale_color_manual(values=c( &quot;#91a3b0&quot;, &quot;#7eb233&quot;)) +
+  labs(title = &quot;Goal-kicking accuracy and tight margins&quot;,
+       subtitle = &quot;More accuracy might mean a less exciting game&quot;,
+       x = &quot;Combined goal-kicking accuracy (% of scoring shots that are goals from both sides)&quot;,
+       y = &quot;Absolute margin of game&quot;,
+       caption = expression(paste(italic(&quot;Source: AFL games 1897 to 2018 c/o fitzRoy package&quot;))))</code></pre>
+<pre><code>## `geom_smooth()` using method = &#39;gam&#39;</code></pre>
+<p><img src="/post/2018-05-07-exploring-skills-in-the-afl_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<pre class="r"><code>ggplot(data = d, aes(x = goal_accuracy, y = abs(Margin))) +
+  stat_density_2d(geom = &quot;tile&quot;, aes(fill = ..density..), contour = FALSE)+
+  scale_fill_viridis() +
+  theme_tufte() +
+  labs(title = &quot;Goal-kicking accuracy and tight margins&quot;,
+       subtitle = &quot;&quot;,
+       x = &quot;Goal-kicking accuracy (% of scoring shots that are goals)&quot;,
+       y = &quot;Absolute margin of game&quot;,
+       caption = expression(paste(italic(&quot;Source: AFL games 1897 to 2018 c/o fitzRoy package&quot;))))</code></pre>
+<p><img src="/post/2018-05-07-exploring-skills-in-the-afl_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+</div>
+
+  </article>
+</section>
+
+
+      </div>
+      
+    </main>
+
+    
+
+  <script src="/js/app.js"></script>
+  
+  </body>
+</html>

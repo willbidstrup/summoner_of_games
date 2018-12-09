@@ -1,0 +1,303 @@
+---
+title: EDA with R and PostgreSQL
+author: Will Bidstrup
+date: '2018-08-27'
+slug: eda-with-r-and-postgresql
+categories:
+  - R
+  - SQL
+tags:
+  - R
+  - SQL
+  - EDA
+---
+
+
+
+<p>Today I connect my R session to a PostgreSQL database.</p>
+<p>I’m using the tutorial database of DVD rentals and <a href="https://www.r-bloggers.com/getting-started-with-postgresql-in-r/">this</a>.</p>
+<p>My objectives are to;</p>
+<ul>
+<li>learn how to connect R to a database<br />
+</li>
+<li>practice using SQL queries within R Markdown<br />
+</li>
+<li>uncover material to use in the SQL project for the Udacity Programming For Data Science Nanodegree</li>
+</ul>
+<pre class="r"><code>library(tidyverse)
+library(here)
+library(ggthemes)
+library(RPostgreSQL)</code></pre>
+<pre class="r"><code>drv &lt;- dbDriver(&quot;PostgreSQL&quot;)</code></pre>
+<pre class="r"><code>con &lt;- dbConnect(drv, dbname = &quot;dvdrental&quot;,
+                 host = &quot;localhost&quot;, port = 5432,
+                 user = &quot;postgres&quot;, password = pw)</code></pre>
+<div id="exploring-the-database" class="section level1">
+<h1>Exploring the database</h1>
+<p>There are 15 tables in this relational database, connected as follows;</p>
+<p><em>Insert pic of ERD</em></p>
+</div>
+<div id="question-1" class="section level1">
+<h1>Question 1</h1>
+<pre class="r"><code># Get results from db via sql query
+q1 &lt;- dbGetQuery(con, &quot;WITH t1 AS
+(SELECT *
+FROM film f
+LEFT JOIN film_category fc
+ON f.film_id = fc.film_id
+LEFT JOIN category c
+ON c.category_id = fc.category_id
+LEFT JOIN inventory i
+ON i.film_id = f.film_id
+LEFT JOIN rental r
+ON r.inventory_id = i.inventory_id)
+
+SELECT DISTINCT(t1.title) film_title,
+        t1.name category_name,
+        CASE WHEN t1.name IN (&#39;Animation&#39;, &#39;Children&#39;, &#39;Classics&#39;, &#39;Comedy&#39;, &#39;Family&#39;, &#39;Music&#39;)
+        THEN &#39;FAMILY&#39; ELSE &#39;ADULT ONLY&#39; END AS family_or_not,
+        COUNT(t1.rental_id) OVER (PARTITION BY t1.title) AS rental_count
+FROM t1
+ORDER BY t1.name, t1.title;&quot;)</code></pre>
+<pre class="r"><code># Create a plot
+
+ggplot(data = q1 %&gt;%
+         group_by(category_name, family_or_not) %&gt;%
+         summarise(rental_count = sum(rental_count, na.rm = T)), aes(x = reorder(category_name, rental_count), y = rental_count)) +
+  geom_bar(stat = &quot;identity&quot;) +
+  coord_flip() +
+  facet_wrap(. ~ family_or_not) +
+  theme_tufte() +
+  labs(title = &quot;Adults like Sports, Families like Animation&quot;,
+       subtitle = &quot;&quot;,
+       x = &quot;Film category&quot;,
+       y = &quot;Count of rentals&quot;)</code></pre>
+<p><img src="/post/2018-08-27-eda-with-r-and-postgresql_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<pre class="r"><code>ggsave(&quot;q1.pdf&quot;)</code></pre>
+<pre><code>## Saving 7 x 5 in image</code></pre>
+<pre class="r"><code># Distribution of rental by category
+ggplot(data = q1, aes(x = rental_count, fill = category_name)) +
+  geom_density(alpha = 0.2) +
+  theme_tufte() +
+  facet_wrap(. ~ family_or_not) +
+  theme_tufte() </code></pre>
+<p><img src="/post/2018-08-27-eda-with-r-and-postgresql_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<pre class="r"><code># Distribution of rental by category
+ggplot(data = q1, aes(x = rental_count, fill = family_or_not)) +
+  geom_density(alpha = 0.2) +
+  theme_tufte() </code></pre>
+<p><img src="/post/2018-08-27-eda-with-r-and-postgresql_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+</div>
+<div id="question-1b" class="section level1">
+<h1>Question 1b</h1>
+<pre class="r"><code># Get results from db via sql query
+q1b &lt;- dbGetQuery(con, &quot;WITH t1 AS
+(SELECT *
+FROM film f
+LEFT JOIN film_category fc
+ON f.film_id = fc.film_id
+LEFT JOIN category c
+ON c.category_id = fc.category_id
+LEFT JOIN inventory i
+ON i.film_id = f.film_id
+LEFT JOIN rental r
+ON r.inventory_id = i.inventory_id)
+
+SELECT DISTINCT(t1.title) film_title,
+        t1.name category_name,
+        t1.length,
+        CASE WHEN t1.name IN (&#39;Animation&#39;, &#39;Children&#39;, &#39;Classics&#39;, &#39;Comedy&#39;, &#39;Family&#39;, &#39;Music&#39;)
+        THEN &#39;FAMILY&#39; ELSE &#39;ADULT ONLY&#39; END AS family_or_not,
+        COUNT(t1.rental_id) OVER (PARTITION BY t1.title) AS rental_count
+FROM t1
+ORDER BY t1.name, t1.title;&quot;)</code></pre>
+<pre class="r"><code>ggplot(data = q1b, aes(x = length, y = rental_count)) +
+  geom_point(alpha = 0.2)</code></pre>
+<p><img src="/post/2018-08-27-eda-with-r-and-postgresql_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<pre class="r"><code>length_matters &lt;- cor(q1b$length, q1b$rental_count)</code></pre>
+<pre class="r"><code># 
+lm_1 &lt;- lm(q1b$rental_count ~ q1b$length)
+
+test &lt;- coefficients(lm_1)
+
+ggplot(data = q1b, aes(x = length, y = rental_count)) +
+  geom_point(alpha = 0.2) +
+  geom_smooth() +
+  facet_wrap(. ~ family_or_not) +
+  labs(title = &quot;&quot;,
+       subtitle = &quot;&quot;,
+       x = &quot;Length of film&quot;,
+       y = &quot;Count of rentals&quot;) +
+  theme_minimal() +
+  theme(text = element_text(size=24))</code></pre>
+<pre><code>## `geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;</code></pre>
+<p><img src="/post/2018-08-27-eda-with-r-and-postgresql_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<pre class="r"><code>ggsave(&quot;q1b.pdf&quot;)</code></pre>
+<pre><code>## Saving 7 x 5 in image
+## `geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;</code></pre>
+</div>
+<div id="question-2" class="section level1">
+<h1>Question 2</h1>
+<pre class="r"><code>q2 &lt;- dbGetQuery(con, &quot;WITH t1 AS
+(SELECT *
+FROM film f
+JOIN film_category fc
+ON f.film_id = fc.film_id
+JOIN category c
+ON c.category_id = fc.category_id)
+
+SELECT DISTINCT(t1.title) film_title,
+        t1.name category_name,
+        CASE WHEN t1.name IN (&#39;Animation&#39;, &#39;Children&#39;, &#39;Classics&#39;, &#39;Comedy&#39;, &#39;Family&#39;, &#39;Music&#39;)
+        THEN &#39;FAMILY&#39; ELSE &#39;ADULT ONLY&#39; END AS family_or_not,
+        t1.rental_duration,
+        NTILE(4) OVER (ORDER BY t1.rental_duration) AS standard_quartile
+FROM t1
+ORDER BY t1.name, t1.title;&quot;)</code></pre>
+<pre class="r"><code>ggplot(data = q2, aes(x = category_name, y = rental_duration)) +
+  geom_boxplot() +
+  coord_flip()</code></pre>
+<p><img src="/post/2018-08-27-eda-with-r-and-postgresql_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+<pre class="r"><code>ggplot(data = q2, aes(x = rental_duration, fill = family_or_not)) +
+  geom_density(alpha = 0.2) +
+  theme_tufte() </code></pre>
+<p><img src="/post/2018-08-27-eda-with-r-and-postgresql_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+</div>
+<div id="question-2b" class="section level1">
+<h1>Question 2b</h1>
+<pre class="r"><code>q2b &lt;- dbGetQuery(con, &quot;WITH t1 AS
+(SELECT *
+FROM film f
+JOIN film_category fc
+ON f.film_id = fc.film_id
+JOIN category c
+ON c.category_id = fc.category_id)
+
+SELECT DISTINCT(t1.title) film_title,
+        t1.name category_name,
+        t1.length,
+        CASE WHEN t1.name IN (&#39;Animation&#39;, &#39;Children&#39;, &#39;Classics&#39;, &#39;Comedy&#39;, &#39;Family&#39;, &#39;Music&#39;)
+        THEN &#39;FAMILY&#39; ELSE &#39;ADULT ONLY&#39; END AS family_or_not,
+        t1.rental_duration,
+        NTILE(4) OVER (ORDER BY t1.rental_duration) AS standard_quartile
+FROM t1
+ORDER BY t1.name, t1.title;&quot;)</code></pre>
+<pre class="r"><code>ggplot(data = q2b, aes(x = length, y = standard_quartile)) +
+  geom_point(alpha = 0.2) +
+  geom_smooth() +
+  facet_grid(. ~family_or_not) +
+  labs(title = &quot;&quot;,
+       subtitle = &quot;&quot;,
+       x = &quot;Length of film&quot;,
+       y = &quot;Duration of rental (quartile)&quot;) +
+  theme_minimal() +
+  theme(text = element_text(size=24)) </code></pre>
+<pre><code>## `geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;</code></pre>
+<p><img src="/post/2018-08-27-eda-with-r-and-postgresql_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
+<pre class="r"><code>ggsave(&quot;q2b.pdf&quot;)</code></pre>
+<pre><code>## Saving 7 x 5 in image
+## `geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;</code></pre>
+</div>
+<div id="question-3" class="section level1">
+<h1>Question 3</h1>
+<pre class="r"><code>q3 &lt;- dbGetQuery(con, &quot;WITH  t1 AS (
+      SELECT *
+      FROM film f
+      LEFT JOIN film_category fc
+      ON f.film_id = fc.film_id
+      LEFT JOIN category c
+      ON c.category_id = fc.category_id),
+
+      t2 AS (
+        SELECT DISTINCT(t1.name) category_name,
+        CASE WHEN t1.name IN (&#39;Animation&#39;, &#39;Children&#39;, &#39;Classics&#39;, &#39;Comedy&#39;, &#39;Family&#39;, &#39;Music&#39;)
+        THEN &#39;FAMILY&#39; ELSE &#39;ADULT ONLY&#39; END AS family_or_not,
+        NTILE(4) OVER (ORDER BY t1.rental_duration) AS standard_quartile,
+        t1.title title
+        FROM t1)
+
+
+SELECT DISTINCT(t2.category_name),
+        t2.family_or_not,
+        t2.standard_quartile,
+        COUNT(t2.title) OVER (PARTITION BY t2.category_name, t2.standard_quartile ORDER BY t2.standard_quartile)
+FROM t2
+ORDER BY 1, 3;&quot;)</code></pre>
+<pre class="r"><code>ggplot(data = q3, aes(x = standard_quartile, y = count, fill = category_name)) +
+  geom_bar(stat = &quot;identity&quot;) +
+  theme_tufte() +
+  facet_grid(. ~ family_or_not)</code></pre>
+<p><img src="/post/2018-08-27-eda-with-r-and-postgresql_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
+<pre class="r"><code>ggplot(data = q3, aes(x = standard_quartile, y = count, fill = category_name)) +
+  geom_density(stat = &quot;identity&quot;, alpha = 0.8) +
+  theme_tufte() +
+  facet_grid(. ~ family_or_not) +
+  labs(title =&quot;&quot;,
+       subtitle = &quot;&quot;,
+       x = &quot;Duration of rental (quartile)&quot;,
+       y = &quot;Count of distinct film title&quot;) +
+  theme_minimal() +
+  theme(text = element_text(size=24))</code></pre>
+<p><img src="/post/2018-08-27-eda-with-r-and-postgresql_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
+<pre class="r"><code>ggsave(&quot;q3.pdf&quot;)</code></pre>
+<pre><code>## Saving 7 x 5 in image</code></pre>
+<pre class="r"><code>q3_with_r &lt;- dbGetQuery(con, &quot;SELECT *
+      FROM film f
+      LEFT JOIN film_category fc
+      ON f.film_id = fc.film_id
+      LEFT JOIN category c
+      ON c.category_id = fc.category_id&quot;)</code></pre>
+<pre><code>## Warning in postgresqlExecStatement(conn, statement, ...): RS-DBI driver
+## warning: (unrecognized PostgreSQL field type tsvector (id:3614) in column
+## 12)</code></pre>
+<pre class="r"><code>names(q3_with_r)</code></pre>
+<pre><code>##  [1] &quot;film_id&quot;          &quot;title&quot;            &quot;description&quot;     
+##  [4] &quot;release_year&quot;     &quot;language_id&quot;      &quot;rental_duration&quot; 
+##  [7] &quot;rental_rate&quot;      &quot;length&quot;           &quot;replacement_cost&quot;
+## [10] &quot;rating&quot;           &quot;last_update&quot;      &quot;special_features&quot;
+## [13] &quot;fulltext&quot;         &quot;film_id&quot;          &quot;category_id&quot;     
+## [16] &quot;last_update&quot;      &quot;category_id&quot;      &quot;name&quot;            
+## [19] &quot;last_update&quot;</code></pre>
+</div>
+<div id="question-4" class="section level1">
+<h1>Question 4</h1>
+<pre class="r"><code>q4 &lt;- dbGetQuery(con, &quot;
+WITH t1 AS (
+SELECT DATE_PART(&#39;month&#39;,r.rental_date) AS rental_month,
+      DATE_PART(&#39;year&#39;,r.rental_date) AS rental_year,
+      sto.store_id store_id,
+      r.rental_id
+FROM store sto
+JOIN staff sta
+ON sta.store_id = sto.store_id
+JOIN rental r
+ON sta.staff_id = r.staff_id)
+
+SELECT t1.rental_month,
+      t1.rental_year,
+      t1.store_id,
+      COUNT(t1.rental_id) rental_count
+FROM t1
+GROUP BY 1, 2, 3
+ORDER BY 1, 2;
+&quot;)
+
+sum(q4$rental_count)</code></pre>
+<pre><code>## [1] 16044</code></pre>
+<pre class="r"><code>ggplot(data = q4, aes(x = rental_month, y = rental_count, fill = factor(store_id))) +
+  geom_bar(stat = &quot;identity&quot;, position = &quot;dodge&quot;) +
+  facet_grid(. ~ rental_year) +
+  theme_minimal() +
+  labs(title = &quot;&quot;,
+       subtitle = &quot;&quot;,
+       x = &quot;Rental month&quot;,
+       y = &quot;Count of rentals&quot;)  +
+  theme(text = element_text(size=24))</code></pre>
+<p><img src="/post/2018-08-27-eda-with-r-and-postgresql_files/figure-html/unnamed-chunk-24-1.png" width="672" /></p>
+<pre class="r"><code>ggsave(&quot;q4.pdf&quot;)</code></pre>
+<pre><code>## Saving 7 x 5 in image</code></pre>
+</div>
+<div id="check-base-tables" class="section level1">
+<h1>Check base tables</h1>
+<pre class="r"><code>rental &lt;- dbGetQuery(con, &quot;SELECT * FROM rental&quot;)</code></pre>
+</div>

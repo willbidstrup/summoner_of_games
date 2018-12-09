@@ -1,0 +1,420 @@
+---
+title: EDA with R and PostgreSQL
+author: Will Bidstrup
+date: '2018-08-27'
+slug: eda-with-r-and-postgresql
+categories:
+  - R
+  - SQL
+tags:
+  - R
+  - SQL
+  - EDA
+---
+
+Today I connect my R session to a PostgreSQL database.  
+
+I'm using the tutorial database of DVD rentals and [this](https://www.r-bloggers.com/getting-started-with-postgresql-in-r/). 
+
+My objectives are to;  
+
+- learn how to connect R to a database  
+- practice using SQL queries within R Markdown  
+- uncover material to use in the SQL project for the Udacity Programming For Data Science Nanodegree
+
+
+```{r, include = FALSE}
+install.packages("tidyverse", repos="http://cran.rstudio.com/")
+install.packages("here", repos="http://cran.rstudio.com/")
+install.packages("ggthemes", repos="http://cran.rstudio.com/")
+install.packages("RPostgreSQL", repos="http://cran.rstudio.com/")
+```
+
+```{r, message = FALSE}
+library(tidyverse)
+library(here)
+library(ggthemes)
+library(RPostgreSQL)
+```
+
+```{r, include = FALSE}
+pw <- "elitecassowary77"
+```
+
+```{r}
+drv <- dbDriver("PostgreSQL")
+```
+
+
+```{r}
+con <- dbConnect(drv, dbname = "dvdrental",
+                 host = "localhost", port = 5432,
+                 user = "postgres", password = pw)
+```
+
+
+```{r, include = FALSE}
+rm(pw)
+```
+
+
+# Exploring the database
+
+There are 15 tables in this relational database, connected as follows;  
+
+*Insert pic of ERD*
+
+
+# Question 1
+
+```{r}
+# Get results from db via sql query
+q1 <- dbGetQuery(con, "WITH t1 AS
+(SELECT *
+FROM film f
+LEFT JOIN film_category fc
+ON f.film_id = fc.film_id
+LEFT JOIN category c
+ON c.category_id = fc.category_id
+LEFT JOIN inventory i
+ON i.film_id = f.film_id
+LEFT JOIN rental r
+ON r.inventory_id = i.inventory_id)
+
+SELECT DISTINCT(t1.title) film_title,
+        t1.name category_name,
+        CASE WHEN t1.name IN ('Animation', 'Children', 'Classics', 'Comedy', 'Family', 'Music')
+        THEN 'FAMILY' ELSE 'ADULT ONLY' END AS family_or_not,
+        COUNT(t1.rental_id) OVER (PARTITION BY t1.title) AS rental_count
+FROM t1
+ORDER BY t1.name, t1.title;")
+
+```
+
+
+```{r}
+# Create a plot
+
+ggplot(data = q1 %>%
+         group_by(category_name, family_or_not) %>%
+         summarise(rental_count = sum(rental_count, na.rm = T)), aes(x = reorder(category_name, rental_count), y = rental_count)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  facet_wrap(. ~ family_or_not) +
+  theme_tufte() +
+  labs(title = "Adults like Sports, Families like Animation",
+       subtitle = "",
+       x = "Film category",
+       y = "Count of rentals")
+
+ggsave("q1.pdf")
+```
+
+```{r}
+# Distribution of rental by category
+ggplot(data = q1, aes(x = rental_count, fill = category_name)) +
+  geom_density(alpha = 0.2) +
+  theme_tufte() +
+  facet_wrap(. ~ family_or_not) +
+  theme_tufte() 
+
+```
+
+```{r}
+# Distribution of rental by category
+ggplot(data = q1, aes(x = rental_count, fill = family_or_not)) +
+  geom_density(alpha = 0.2) +
+  theme_tufte() 
+```
+
+
+
+# Question 1b
+
+```{r}
+# Get results from db via sql query
+q1b <- dbGetQuery(con, "WITH t1 AS
+(SELECT *
+FROM film f
+LEFT JOIN film_category fc
+ON f.film_id = fc.film_id
+LEFT JOIN category c
+ON c.category_id = fc.category_id
+LEFT JOIN inventory i
+ON i.film_id = f.film_id
+LEFT JOIN rental r
+ON r.inventory_id = i.inventory_id)
+
+SELECT DISTINCT(t1.title) film_title,
+        t1.name category_name,
+        t1.length,
+        CASE WHEN t1.name IN ('Animation', 'Children', 'Classics', 'Comedy', 'Family', 'Music')
+        THEN 'FAMILY' ELSE 'ADULT ONLY' END AS family_or_not,
+        COUNT(t1.rental_id) OVER (PARTITION BY t1.title) AS rental_count
+FROM t1
+ORDER BY t1.name, t1.title;")
+
+```
+
+
+```{r}
+ggplot(data = q1b, aes(x = length, y = rental_count)) +
+  geom_point(alpha = 0.2)
+
+length_matters <- cor(q1b$length, q1b$rental_count)
+
+```
+
+
+
+```{r}
+# 
+lm_1 <- lm(q1b$rental_count ~ q1b$length)
+
+test <- coefficients(lm_1)
+
+ggplot(data = q1b, aes(x = length, y = rental_count)) +
+  geom_point(alpha = 0.2) +
+  geom_smooth() +
+  facet_wrap(. ~ family_or_not) +
+  labs(title = "",
+       subtitle = "",
+       x = "Length of film",
+       y = "Count of rentals") +
+  theme_minimal() +
+  theme(text = element_text(size=24))
+  
+
+
+
+
+ggsave("q1b.pdf")
+
+
+```
+
+
+
+# Question 2
+
+
+```{r}
+q2 <- dbGetQuery(con, "WITH t1 AS
+(SELECT *
+FROM film f
+JOIN film_category fc
+ON f.film_id = fc.film_id
+JOIN category c
+ON c.category_id = fc.category_id)
+
+SELECT DISTINCT(t1.title) film_title,
+        t1.name category_name,
+        CASE WHEN t1.name IN ('Animation', 'Children', 'Classics', 'Comedy', 'Family', 'Music')
+        THEN 'FAMILY' ELSE 'ADULT ONLY' END AS family_or_not,
+        t1.rental_duration,
+        NTILE(4) OVER (ORDER BY t1.rental_duration) AS standard_quartile
+FROM t1
+ORDER BY t1.name, t1.title;")
+
+
+```
+
+```{r}
+
+ggplot(data = q2, aes(x = category_name, y = rental_duration)) +
+  geom_boxplot() +
+  coord_flip()
+
+```
+
+
+```{r}
+ggplot(data = q2, aes(x = rental_duration, fill = family_or_not)) +
+  geom_density(alpha = 0.2) +
+  theme_tufte() 
+```
+
+
+# Question 2b
+
+
+```{r}
+q2b <- dbGetQuery(con, "WITH t1 AS
+(SELECT *
+FROM film f
+JOIN film_category fc
+ON f.film_id = fc.film_id
+JOIN category c
+ON c.category_id = fc.category_id)
+
+SELECT DISTINCT(t1.title) film_title,
+        t1.name category_name,
+        t1.length,
+        CASE WHEN t1.name IN ('Animation', 'Children', 'Classics', 'Comedy', 'Family', 'Music')
+        THEN 'FAMILY' ELSE 'ADULT ONLY' END AS family_or_not,
+        t1.rental_duration,
+        NTILE(4) OVER (ORDER BY t1.rental_duration) AS standard_quartile
+FROM t1
+ORDER BY t1.name, t1.title;")
+
+
+```
+
+```{r}
+ggplot(data = q2b, aes(x = length, y = standard_quartile)) +
+  geom_point(alpha = 0.2) +
+  geom_smooth() +
+  facet_grid(. ~family_or_not) +
+  labs(title = "",
+       subtitle = "",
+       x = "Length of film",
+       y = "Duration of rental (quartile)") +
+  theme_minimal() +
+  theme(text = element_text(size=24)) 
+
+ggsave("q2b.pdf")
+```
+
+
+
+
+
+# Question 3
+
+
+```{r}
+q3 <- dbGetQuery(con, "WITH  t1 AS (
+      SELECT *
+      FROM film f
+      LEFT JOIN film_category fc
+      ON f.film_id = fc.film_id
+      LEFT JOIN category c
+      ON c.category_id = fc.category_id),
+
+
+      t2 AS (
+        SELECT DISTINCT(t1.name) category_name,
+        CASE WHEN t1.name IN ('Animation', 'Children', 'Classics', 'Comedy', 'Family', 'Music')
+        THEN 'FAMILY' ELSE 'ADULT ONLY' END AS family_or_not,
+        NTILE(4) OVER (ORDER BY t1.rental_duration) AS standard_quartile,
+        t1.title title
+        FROM t1)
+
+
+SELECT DISTINCT(t2.category_name),
+        t2.family_or_not,
+        t2.standard_quartile,
+        COUNT(t2.title) OVER (PARTITION BY t2.category_name, t2.standard_quartile ORDER BY t2.standard_quartile)
+FROM t2
+ORDER BY 1, 3;")
+
+
+```
+
+```{r}
+
+ggplot(data = q3, aes(x = standard_quartile, y = count, fill = category_name)) +
+  geom_bar(stat = "identity") +
+  theme_tufte() +
+  facet_grid(. ~ family_or_not)
+
+```
+
+```{r}
+
+ggplot(data = q3, aes(x = standard_quartile, y = count, fill = category_name)) +
+  geom_density(stat = "identity", alpha = 0.8) +
+  theme_tufte() +
+  facet_grid(. ~ family_or_not) +
+  labs(title ="",
+       subtitle = "",
+       x = "Duration of rental (quartile)",
+       y = "Count of distinct film title") +
+  theme_minimal() +
+  theme(text = element_text(size=24))
+
+ggsave("q3.pdf")
+
+```
+
+
+
+
+```{r}
+q3_with_r <- dbGetQuery(con, "SELECT *
+      FROM film f
+      LEFT JOIN film_category fc
+      ON f.film_id = fc.film_id
+      LEFT JOIN category c
+      ON c.category_id = fc.category_id")
+
+names(q3_with_r)
+  
+  
+```
+
+
+
+
+
+
+
+
+# Question 4
+```{r}
+q4 <- dbGetQuery(con, "
+WITH t1 AS (
+SELECT DATE_PART('month',r.rental_date) AS rental_month,
+      DATE_PART('year',r.rental_date) AS rental_year,
+      sto.store_id store_id,
+      r.rental_id
+FROM store sto
+JOIN staff sta
+ON sta.store_id = sto.store_id
+JOIN rental r
+ON sta.staff_id = r.staff_id)
+
+SELECT t1.rental_month,
+      t1.rental_year,
+      t1.store_id,
+      COUNT(t1.rental_id) rental_count
+FROM t1
+GROUP BY 1, 2, 3
+ORDER BY 1, 2;
+")
+
+sum(q4$rental_count)
+
+```
+
+
+
+```{r}
+ggplot(data = q4, aes(x = rental_month, y = rental_count, fill = factor(store_id))) +
+  geom_bar(stat = "identity", position = "dodge") +
+  facet_grid(. ~ rental_year) +
+  theme_minimal() +
+  labs(title = "",
+       subtitle = "",
+       x = "Rental month",
+       y = "Count of rentals")  +
+  theme(text = element_text(size=24))
+
+ggsave("q4.pdf")
+```
+
+
+
+
+
+
+
+
+
+# Check base tables
+
+```{r}
+rental <- dbGetQuery(con, "SELECT * FROM rental")
+```
+
+

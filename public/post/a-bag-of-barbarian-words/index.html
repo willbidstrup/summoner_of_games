@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="author" content="Will Bidstrup">
+    <meta name="description" content="/">
+    <meta name="keywords" content="blog,developer,personal">
+    
+    <meta property="og:site_name" content="Data Science Explorer">
+    <meta property="og:title" content="
+  A bag of barbarian words - Data Science Explorer
+">
+    <meta property="og:description" content="">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="/post/a-bag-of-barbarian-words/">
+    <meta property="og:image" content="/">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="/post/a-bag-of-barbarian-words/">
+    <meta name="twitter:image" content="/">
+
+    <base href="/">
+    <title>
+  A bag of barbarian words - Data Science Explorer
+</title>
+
+    <link rel="canonical" href="/post/a-bag-of-barbarian-words/">
+    
+    <link  rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:400,700">
+    <link rel="stylesheet" href="//cdn.rawgit.com/necolas/normalize.css/master/normalize.css">
+    <link rel="stylesheet" href="/css/style.min.css">
+
+    
+
+    
+
+    <link rel="icon" type="image/png" href="/images/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/images/favicon-16x16.png" sizes="16x16">
+
+    
+
+    <meta name="generator" content="Hugo 0.41" />
+  </head>
+
+  <body class="">
+    <main class="wrapper">
+      <nav class="navigation">
+  <section class="container">
+    <a class="navigation-title" href="/">Data Science Explorer</a>
+    <input type="checkbox" id="menu-control"/>
+    <label class="menu-mobile  float-right " for="menu-control">
+      <span class="btn-mobile  float-right ">&#9776;</span>
+      <ul class="navigation-list">
+        
+          
+            <li class="navigation-item  align-center ">
+              <a class="navigation-link" href="/post/">Blog</a>
+            </li>
+          
+            <li class="navigation-item  align-center ">
+              <a class="navigation-link" href="/tags/">Tags</a>
+            </li>
+          
+            <li class="navigation-item  align-center ">
+              <a class="navigation-link" href="/about/">About</a>
+            </li>
+          
+        
+        
+      </ul>
+    </label>
+  </section>
+</nav>
+
+
+      <div class="content">
+        
+  <section class="container page">
+  <article>
+    <header>
+      <h1>A bag of barbarian words</h1>
+    </header>
+
+    <p>My objective is to learn some text mining techniques and apply them to the very excellent <a href="https://www.modiphius.net/collections/conan">Conan Adventures In An Age Undreamed Of</a> roleplaying game which won best RPG at UK Games Expo 2018. I’m focusing on the Core Book.</p>
+<p>I will be loosely following parts of the <a href="https://www.datacamp.com/courses/intro-to-text-mining-bag-of-words">Text Mining:Bag Of Words</a> course from DataCamp as well as throwing in a few wild tricks of my own and plundering from Stack Overflow, as any barbarian analyst should. This is not intented to be a tutorial of any sort, it’s just a notebook - you have been warned.</p>
+<p>Here are the packages I use, make sure to install first with <code>install.package</code>.</p>
+<pre class="r"><code>library(here) # For project oriented workflow
+library(tidyverse) # For everything</code></pre>
+<pre><code>## Warning: package &#39;dplyr&#39; was built under R version 3.5.1</code></pre>
+<pre class="r"><code>library(ggthemes) # For some prettier themes
+library(textreadr) # For importing text
+library(rJava) # My nemesis
+library(tm) # For preprocessing text
+library(wordcloud) # For wordclouds</code></pre>
+<div id="getting-the-text" class="section level1">
+<h1>Getting the text</h1>
+<p>I have a purchased PDF of the game, as well as the hardback. I’m sure there are ways to directly read in the PDF, but I make life easy by exporting it into plain text format, then importing that into R.</p>
+<p>The steps I am taking here could be copied for any kind of text document.</p>
+<pre class="r"><code>text &lt;- read_lines(&quot;data/conan_rpg.txt&quot;)</code></pre>
+<p>There are some graphical elements being represented somehow in the text file, they are mercilessly removed.</p>
+<pre class="r"><code>text &lt;- as.character(text)
+text &lt;- str_replace_all(text,&quot;[^[:graph:]]&quot;, &quot; &quot;) </code></pre>
+<p>I create a corpus, because that’s what you do when mining text. It’s a way multiple sets of text (tweets for example) can be stored in a coherent way. I’m not 100% sure I need that here as I will be analysing a great big block of text, but I do it anyway.</p>
+<pre class="r"><code># Create a vector source
+conan_source &lt;- VectorSource(text)
+
+# Create a corpus
+conan_corpus &lt;- VCorpus(conan_source)</code></pre>
+</div>
+<div id="pre-processing" class="section level1">
+<h1>Pre-Processing</h1>
+<p>I’ve opted for fairly simple text pre-processing steps here. There is a lot I would like to go back and do now, including dealing with stem words (where similar words like “character” and “chracters” are combined) and adding more stop words (words you wish to exclude from anlaysis that have little value like “the”). Also there a lot of blank boxes turing up as parts of words I’d like to remove.</p>
+<p>For now, I remove whitespace, punctuation, transform to lower case, remove numbers and remove the default stop words.</p>
+<pre class="r"><code># Creae funtion for cleaning corpus
+
+clean_corpus &lt;- function(corpus){
+  corpus &lt;- tm_map(corpus, stripWhitespace)
+  corpus &lt;- tm_map(corpus, removePunctuation)
+  corpus &lt;- tm_map(corpus, content_transformer(tolower))
+  corpus &lt;- tm_map(corpus, removeNumbers)
+  corpus &lt;- tm_map(corpus, removeWords, c(stopwords(&quot;en&quot;)))
+return(corpus)
+}
+
+# Comment out some future stop words to be added to the function
+#corpus &lt;- tm_map(corpus, removeWords, c(&quot;character&quot;, &quot;characters&quot;, &quot;can&quot;, &quot;one&quot;, &quot;may&quot;, &quot;will&quot; &quot;player&quot;, &quot;players&quot;, &quot;gamemaster&quot;)) </code></pre>
+<pre class="r"><code># Apply the fucntion to the corpus
+conan_corpus &lt;- clean_corpus(conan_corpus)</code></pre>
+</div>
+<div id="term-document-matrix" class="section level1">
+<h1>Term Document Matrix</h1>
+<p>I create a Term Document Matrix which creates a matrix of each term (word) per document. There <em>are</em> documents in this corpus somehow, I wonder if they are lines? The opposite of this would be a Document Term Matrix which might be more useful for analysing text where the doucmnet elements are more important (again, thinking of tweets). These can get big, this one is 3.3Gb.</p>
+<pre class="r"><code># Create TDM
+conan_tdm &lt;- TermDocumentMatrix(conan_corpus)
+conan_tdm_m &lt;- as.matrix(conan_tdm)</code></pre>
+</div>
+<div id="frequent-terms" class="section level1">
+<h1>Frequent Terms</h1>
+<p>The first thing I look for is frequent terms.</p>
+<pre class="r"><code># Find term freqencies
+term_frequency &lt;- conan_tdm_m %&gt;%
+  rowSums() %&gt;%
+  sort(decreasing = TRUE) 
+
+term_frequency &lt;- data.frame(term_frequency)
+term_frequency$word &lt;- row.names(term_frequency)</code></pre>
+<p>Here are the top 20 most frequently occuring words (ignoring default stop words). Nice to see Conan himself sneaks in at number 20. Lots of what I would say are pretty normal words to see in a RPG like “player”, “can”, “test” and the like. The ones that intrigue me most are “momentum” and “doom”. I should point out here that this book is packed with epic non-gamey text as well, these are just the most commonly occuring words, and not surprising to me for a rule book.</p>
+<pre class="r"><code>ggplot(data = term_frequency %&gt;%
+         head(20), aes(x = reorder(word, term_frequency), y = term_frequency)) +
+  geom_bar(stat = &quot;identity&quot;) +
+  coord_flip() +
+  theme_tufte() +
+    labs(title = &quot;Top 20 words in Conan Core Rulebook&quot;, x = &quot;Word&quot; , y = &quot;Frequency&quot;,
+       subtitle = &quot;&quot;,
+       caption = expression(paste(italic(&quot;Source: Conan Adventures In An Age Undreamed Of&quot;))))</code></pre>
+<p><img src="/post/2018-05-19-a-bag-of-barbarian-words_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+</div>
+<div id="wordcloud" class="section level1">
+<h1>Wordcloud</h1>
+<p>Here is a wordcloud of the frequent terms. This could be greatly improved by selecting some additional stop words. I pick a few epic colours from <a href="http://www.color-hex.com/color-names.html">here</a>.</p>
+<pre class="r"><code>wordcloud(term_frequency$word, term_frequency$term_frequency, max.words = 100, colors = c(&quot;#c1cdcd&quot;, &quot;#cd950c&quot;, &quot;#8b1a1a&quot;))</code></pre>
+<p><img src="/post/2018-05-19-a-bag-of-barbarian-words_files/figure-html/unnamed-chunk-11-1.png" width="768" /></p>
+</div>
+<div id="momentum-and-doom" class="section level1">
+<h1>Momentum and Doom</h1>
+<p>Now I will narrow my exploration to “momentum” and “doom”.</p>
+<p>I’d like to see what kind of words are used around those two words, so I use <code>findAssocs</code> to do this. It scores other words based on their correlation to the chosen word, a higher value means it is more closely associated with the target word.</p>
+<pre class="r"><code># Find associated words
+doom_words &lt;- findAssocs(conan_tdm, &quot;doom&quot;, 0.1) # Set threshold to 0.1
+momentum_words &lt;- findAssocs(conan_tdm, &quot;momentum&quot;, 0.1)</code></pre>
+<p>Then I do some organising to create a dataframe of all the words that scored 0.1 or higher against either “doom” or “momentum”.</p>
+<pre class="r"><code>doom_words_names &lt;- names(doom_words$doom)
+doom_words_values &lt;- doom_words$doom
+names(doom_words_values) &lt;- NULL
+
+doom_words &lt;- data.frame(doom_words_names, doom_words_values)
+doom_words$word &lt;- &quot;doom&quot;
+
+names(doom_words) &lt;- c(&quot;assoc_word&quot;, &quot;value&quot;, &quot;word&quot;)
+
+momentum_words_names &lt;- names(momentum_words$momentum)
+momentum_words_values &lt;- momentum_words$momentum
+names(momentum_words_values) &lt;- NULL
+
+momentum_words &lt;- data.frame(momentum_words_names, momentum_words_values)
+momentum_words$word &lt;- &quot;momentum&quot;
+
+names(momentum_words) &lt;- c(&quot;assoc_word&quot;, &quot;value&quot;, &quot;word&quot;)
+
+
+combined_words &lt;- doom_words %&gt;%
+  bind_rows(momentum_words)</code></pre>
+<pre><code>## Warning in bind_rows_(x, .id): Unequal factor levels: coercing to character</code></pre>
+<pre><code>## Warning in bind_rows_(x, .id): binding character and factor vector,
+## coercing into character vector
+
+## Warning in bind_rows_(x, .id): binding character and factor vector,
+## coercing into character vector</code></pre>
+<p>Here are all of those words. I’ll make a better plot (get right combo of fig.height and out.height) next time.</p>
+<pre class="r"><code>ggplot(data = combined_words, aes(x = reorder(assoc_word, value), y = value, col = word)) +
+  geom_point(position = &quot;jitter&quot;) +
+  coord_flip() +
+  theme_tufte() +
+  facet_grid(. ~ word) +
+      labs(title = &quot;Combined associated words&quot;, x = &quot;Word&quot; , y = &quot;Strength of association&quot;,
+       subtitle = &quot;&quot;,
+       caption = expression(paste(italic(&quot;Source: Conan Adventures In An Age Undreamed Of&quot;))))</code></pre>
+<p><img src="/post/2018-05-19-a-bag-of-barbarian-words_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<p>What I really want to see is which words are associated with “doom” and “momentum”, but <em>not both</em>. So I remove duplications from the two lists by using <code>anti_join</code>, then isolate the top 20 using <code>head</code>.</p>
+<pre class="r"><code>remove_dupes_doom &lt;- doom_words %&gt;%
+  anti_join(momentum_words, by = &quot;assoc_word&quot;)</code></pre>
+<pre><code>## Warning: Column `assoc_word` joining factors with different levels,
+## coercing to character vector</code></pre>
+<pre class="r"><code>remove_dupes_momentum &lt;- momentum_words %&gt;%
+  anti_join(doom_words, by = &quot;assoc_word&quot;)</code></pre>
+<pre><code>## Warning: Column `assoc_word` joining factors with different levels,
+## coercing to character vector</code></pre>
+<pre class="r"><code>top_20_doom &lt;- remove_dupes_doom %&gt;%
+  arrange(desc(value)) %&gt;%
+  head(20)
+
+top_20_momentum &lt;- remove_dupes_momentum %&gt;%
+  arrange(desc(value)) %&gt;%
+  head(20)</code></pre>
+<p>Now I can get a good look at the words I want to see.</p>
+<p>Doom is a game mechanic used by the Gamemaster to control the flow of the game and boost up nonplayer characters, so the top word is no surpise. I love seeing “tension” as the second word, I am sure the correct use of Doom will really help create exciting, tense adventures. Many of the words feel quite doom-ish such as “hazards”, “endanger”, “complications” and “imperil”.</p>
+<p><strong>FULL DISCLOSURE</strong> - Image placement done in Photoshop, I will tackle direct from R another time. Doom Skull from <a href="https://www.iconfinder.com/icons/1238294/dead_death_game_head_human_over_skull_icon#size=512">here</a>, Momentum Axe from <a href="https://www.iconfinder.com/icons/707484/arma_creative_double_axe_line_weapon_icon#size=512">here</a>.</p>
+<pre class="r"><code># Here is the code for the plot without the Doom Skull (added later)
+ggplot(data = top_20_doom, aes(x = reorder(assoc_word, value), y = value)) +
+  geom_point(alpha = 0.6, col = &quot;#8b1a1a&quot;) +
+  coord_flip() +
+  theme_tufte() +
+  labs(title = &quot;Top 20 words of DOOM&quot;, x = &quot;Associated word&quot; , y = &quot;Strength of association to &#39;doom&#39;&quot;,
+       subtitle = &quot;From findAssocs function set to 0.1&quot;,
+       caption = expression(paste(italic(&quot;Source: Conan Adventures In An Age Undreamed Of&quot;))))</code></pre>
+<div class="figure">
+<img src="/images/doom.png" />
+
+</div>
+<p>Momentum is used by the player characters, so the words here might be expected to have a different flavour to Doom, and they do. I love seeing “unspent” first though, because it seems a caution of sorts. Don’t accrue unspent Momentum! The rest of the words overall feel a bit more gamey than the Doom selection, notable examples being “bonus”, “repeatable” and “scored”.</p>
+<pre class="r"><code># Here is the code for the plot without the Momentum Axe (added later)
+ggplot(data = top_20_momentum, aes(x = reorder(assoc_word, value), y = value)) +
+  geom_point(alpha = 0.6, col = &quot;#eec900&quot;) +
+  coord_flip() +
+  theme_tufte() +
+    labs(title = &quot;Top 20 words of MOMENTUM&quot;, x = &quot;Associated word&quot; , y = &quot;Strength of association to &#39;momentum&#39;&quot;,
+       subtitle = &quot;From findAssocs function set to 0.1&quot;,
+       caption = expression(paste(italic(&quot;Source: Conan Adventures In An Age Undreamed Of&quot;))))</code></pre>
+<div class="figure">
+<img src="/images/momentum.png" />
+
+</div>
+</div>
+<div id="bonus-section---rjava" class="section level1">
+<h1>Bonus Section - rJava</h1>
+<p>If ever there is aspect of R that has repeatedly manifested Doom upon me, it is rJava, needed for tm (I think) and qdap (although I didn’t end up even using qdap).</p>
+<p>I wrestled with my setup for a while and distilled the the steps I need to check next time;</p>
+<ul>
+<li>Install latest Java</li>
+<li>Install latest Java jdk</li>
+<li>Make sure Java home option is set to location of the jdk (Java Development Kit)</li>
+</ul>
+<pre class="r"><code># Some code to use next time I encounter rJava issues
+# Reconfig java
+sudo R CMD javareconf 
+# Some code to check java
+options(&quot;java.home&quot;)
+options(&quot;java.home&quot;=&quot;/Library/Java/JavaVirtualMachines/jdk1.8.0_171.jdk/Contents/Home/jre&quot;) # Set</code></pre>
+<p>Useful links;</p>
+<ol style="list-style-type: decimal">
+<li>Followed <a href="http://osxdaily.com/2017/06/16/uninstall-java-mac/">this</a> to uninstall Java.<br />
+</li>
+<li>Reinstalled Java from <a href="https://www.java.com/en/download/help/mac_install.xml">here</a>.<br />
+</li>
+<li>Checked out errors from <a href="https://stackoverflow.com/questions/47057120/r-how-to-set-up-jdk-to-work-with-r-related-rjava-rstudio-xslx">here</a>.<br />
+</li>
+<li>Downloaded <a href="https://cran.cnr.berkeley.edu/bin/macosx/tools/">clang</a>.</li>
+<li>Read <a href="http://www.owsiak.org/r-3-4-rjava-macos-and-even-more-mess/#comment-126311">this</a>.</li>
+</ol>
+</div>
+
+  </article>
+</section>
+
+
+      </div>
+      
+    </main>
+
+    
+
+  <script src="/js/app.js"></script>
+  
+  </body>
+</html>

@@ -1,0 +1,279 @@
+---
+title: A bag of barbarian words
+author: Will Bidstrup
+date: '2018-06-04'
+slug: a-bag-of-barbarian-words
+categories:
+  - R
+tags:
+  - R
+  - text-mining
+---
+
+My objective is to learn some text mining techniques and apply them to the very excellent [Conan Adventures In An Age Undreamed Of](https://www.modiphius.net/collections/conan) roleplaying game which won best RPG at UK Games Expo 2018. I'm focusing on the Core Book.    
+
+I will be loosely following parts of the [Text Mining:Bag Of Words](https://www.datacamp.com/courses/intro-to-text-mining-bag-of-words) course from DataCamp as well as throwing in a few wild tricks of my own and plundering from Stack Overflow, as any barbarian analyst should. This is not intented to be a tutorial of any sort, it's just a notebook - you have been warned.  
+ 
+
+```{r, include = FALSE}
+install.packages("tidyverse", repos="http://cran.rstudio.com/")
+install.packages("here", repos="http://cran.rstudio.com/")
+install.packages("ggthemes", repos="http://cran.rstudio.com/")
+install.packages("textreadr", repos="http://cran.rstudio.com/")
+install.packages("rJava", repos="http://cran.rstudio.com/")
+install.packages("qdap", repos="http://cran.rstudio.com/")
+install.packages("tm", repos="http://cran.rstudio.com/")
+install.packages("wordcloud", repos="http://cran.rstudio.com/")
+```
+
+Here are the packages I use, make sure to install first with `install.package`.  
+
+```{r, message = FALSE}
+library(here) # For project oriented workflow
+library(tidyverse) # For everything
+library(ggthemes) # For some prettier themes
+library(textreadr) # For importing text
+library(rJava) # My nemesis
+library(tm) # For preprocessing text
+library(wordcloud) # For wordclouds
+```
+
+
+# Getting the text
+
+I have a purchased PDF of the game, as well as the hardback. I'm sure there are ways to directly read in the PDF, but I make life easy by exporting it into plain text format, then importing that into R.  
+
+The steps I am taking here could be copied for any kind of text document.  
+
+```{r}
+text <- read_lines("data/conan_rpg.txt")
+```
+
+There are some graphical elements being represented somehow in the text file, they are mercilessly removed.  
+```{r}
+text <- as.character(text)
+text <- str_replace_all(text,"[^[:graph:]]", " ") 
+```
+
+I create a corpus, because that's what you do when mining text. It's a way multiple sets of text (tweets for example) can be stored in a coherent way. I'm not 100% sure I need that here as I will be analysing a great big block of text, but I do it anyway.   
+```{r}
+# Create a vector source
+conan_source <- VectorSource(text)
+
+# Create a corpus
+conan_corpus <- VCorpus(conan_source)
+```
+
+
+# Pre-Processing
+
+I've opted for fairly simple text pre-processing steps here. There is a lot I would like to go back and do now, including dealing with stem words (where similar words like "character" and "chracters" are combined) and adding more stop words (words you wish to exclude from anlaysis that have little value like "the"). Also there a lot of blank boxes turing up as parts of words I'd like to remove.  
+
+For now, I remove whitespace, punctuation, transform to lower case, remove numbers and remove the default stop words.  
+```{r}
+# Creae funtion for cleaning corpus
+
+clean_corpus <- function(corpus){
+  corpus <- tm_map(corpus, stripWhitespace)
+  corpus <- tm_map(corpus, removePunctuation)
+  corpus <- tm_map(corpus, content_transformer(tolower))
+  corpus <- tm_map(corpus, removeNumbers)
+  corpus <- tm_map(corpus, removeWords, c(stopwords("en")))
+return(corpus)
+}
+
+# Comment out some future stop words to be added to the function
+#corpus <- tm_map(corpus, removeWords, c("character", "characters", "can", "one", "may", "will" "player", "players", "gamemaster")) 
+
+```
+
+```{r}
+# Apply the fucntion to the corpus
+conan_corpus <- clean_corpus(conan_corpus)
+```
+
+# Term Document Matrix
+
+I create a Term Document Matrix which creates a matrix of each term (word) per document. There *are* documents in this corpus somehow, I wonder if they are lines?  The opposite of this would be a Document Term Matrix which might be more useful for analysing text where the doucmnet elements are more important (again, thinking of tweets). These can get big, this one is 3.3Gb.  
+
+```{r}
+# Create TDM
+conan_tdm <- TermDocumentMatrix(conan_corpus)
+conan_tdm_m <- as.matrix(conan_tdm)
+
+```
+
+# Frequent Terms
+
+The first thing I look for is frequent terms.    
+```{r}
+# Find term freqencies
+term_frequency <- conan_tdm_m %>%
+  rowSums() %>%
+  sort(decreasing = TRUE) 
+
+term_frequency <- data.frame(term_frequency)
+term_frequency$word <- row.names(term_frequency)
+```
+
+
+Here are the top 20 most frequently occuring words (ignoring default stop words). Nice to see Conan himself sneaks in at number 20. Lots of what I would say are pretty normal words to see in a RPG like "player", "can", "test" and the like. The ones that intrigue me most are "momentum" and "doom". I should point out here that this book is packed with epic non-gamey text as well, these are just the most commonly occuring words, and not surprising to me for a rule book.  
+
+```{r}
+ggplot(data = term_frequency %>%
+         head(20), aes(x = reorder(word, term_frequency), y = term_frequency)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  theme_tufte() +
+    labs(title = "Top 20 words in Conan Core Rulebook", x = "Word" , y = "Frequency",
+       subtitle = "",
+       caption = expression(paste(italic("Source: Conan Adventures In An Age Undreamed Of"))))
+```
+
+
+# Wordcloud
+
+Here is a wordcloud of the frequent terms. This could be greatly improved by selecting some additional stop words. I pick a few epic colours from [here](http://www.color-hex.com/color-names.html).   
+
+```{r, fig.width = 8, fig.height=7}
+wordcloud(term_frequency$word, term_frequency$term_frequency, max.words = 100, colors = c("#c1cdcd", "#cd950c", "#8b1a1a"))
+```
+
+
+
+
+# Momentum and Doom
+ 
+Now I will narrow my exploration to "momentum" and "doom".  
+
+I'd like to see what kind of words are used around those two words, so I use `findAssocs` to do this. It scores other words based on their correlation to the chosen word, a higher value means it is more closely associated with the target word.  
+ 
+```{r}
+# Find associated words
+doom_words <- findAssocs(conan_tdm, "doom", 0.1) # Set threshold to 0.1
+momentum_words <- findAssocs(conan_tdm, "momentum", 0.1)
+
+```
+
+
+Then I do some organising to create a dataframe of all the words that scored 0.1 or higher against either "doom" or "momentum". 
+```{r}
+
+doom_words_names <- names(doom_words$doom)
+doom_words_values <- doom_words$doom
+names(doom_words_values) <- NULL
+
+doom_words <- data.frame(doom_words_names, doom_words_values)
+doom_words$word <- "doom"
+
+names(doom_words) <- c("assoc_word", "value", "word")
+
+momentum_words_names <- names(momentum_words$momentum)
+momentum_words_values <- momentum_words$momentum
+names(momentum_words_values) <- NULL
+
+momentum_words <- data.frame(momentum_words_names, momentum_words_values)
+momentum_words$word <- "momentum"
+
+names(momentum_words) <- c("assoc_word", "value", "word")
+
+
+combined_words <- doom_words %>%
+  bind_rows(momentum_words)
+
+```
+
+ 
+Here are all of those words. I'll make a better plot (get right combo of fig.height and out.height) next time.   
+```{r, fig.height = 10}
+ggplot(data = combined_words, aes(x = reorder(assoc_word, value), y = value, col = word)) +
+  geom_point(position = "jitter") +
+  coord_flip() +
+  theme_tufte() +
+  facet_grid(. ~ word) +
+      labs(title = "Combined associated words", x = "Word" , y = "Strength of association",
+       subtitle = "",
+       caption = expression(paste(italic("Source: Conan Adventures In An Age Undreamed Of"))))
+```
+
+
+What I really want to see is which words are associated with "doom" and "momentum", but *not both*. So I remove duplications from the two lists by using `anti_join`, then isolate the top 20 using `head`. 
+```{r, fig.height = 10}
+remove_dupes_doom <- doom_words %>%
+  anti_join(momentum_words, by = "assoc_word")
+
+remove_dupes_momentum <- momentum_words %>%
+  anti_join(doom_words, by = "assoc_word")
+
+top_20_doom <- remove_dupes_doom %>%
+  arrange(desc(value)) %>%
+  head(20)
+
+top_20_momentum <- remove_dupes_momentum %>%
+  arrange(desc(value)) %>%
+  head(20)
+
+```
+
+
+Now I can get a good look at the words I want to see.  
+
+Doom is a game mechanic used by the Gamemaster to control the flow of the game and boost up nonplayer characters, so the top word is no surpise. I love seeing "tension" as the second word, I am sure the correct use of Doom will really help create exciting, tense adventures. Many of the words feel quite doom-ish such as "hazards", "endanger", "complications" and "imperil".  
+
+**FULL DISCLOSURE** - Image placement done in Photoshop, I will tackle direct from R another time. Doom Skull from [here](https://www.iconfinder.com/icons/1238294/dead_death_game_head_human_over_skull_icon#size=512), Momentum Axe from [here](https://www.iconfinder.com/icons/707484/arma_creative_double_axe_line_weapon_icon#size=512). 
+
+```{r, eval = FALSE}
+# Here is the code for the plot without the Doom Skull (added later)
+ggplot(data = top_20_doom, aes(x = reorder(assoc_word, value), y = value)) +
+  geom_point(alpha = 0.6, col = "#8b1a1a") +
+  coord_flip() +
+  theme_tufte() +
+  labs(title = "Top 20 words of DOOM", x = "Associated word" , y = "Strength of association to 'doom'",
+       subtitle = "From findAssocs function set to 0.1",
+       caption = expression(paste(italic("Source: Conan Adventures In An Age Undreamed Of"))))
+
+```
+
+![](/images/doom.png)
+
+Momentum is used by the player characters, so the words here might be expected to have a different flavour to Doom, and they do. I love seeing "unspent" first though, because it seems a caution of sorts. Don't accrue unspent Momentum! The rest of the words overall feel a bit more gamey than the Doom selection, notable examples being "bonus", "repeatable" and "scored". 
+```{r, eval = FALSE}
+# Here is the code for the plot without the Momentum Axe (added later)
+ggplot(data = top_20_momentum, aes(x = reorder(assoc_word, value), y = value)) +
+  geom_point(alpha = 0.6, col = "#eec900") +
+  coord_flip() +
+  theme_tufte() +
+    labs(title = "Top 20 words of MOMENTUM", x = "Associated word" , y = "Strength of association to 'momentum'",
+       subtitle = "From findAssocs function set to 0.1",
+       caption = expression(paste(italic("Source: Conan Adventures In An Age Undreamed Of"))))
+
+```
+
+![](/images/momentum.png)
+
+
+# Bonus Section - rJava
+
+If ever there is aspect of R that has repeatedly manifested Doom upon me, it is rJava, needed for tm (I think) and qdap (although I didn't end up even using qdap).    
+
+I wrestled with my setup for a while and distilled the the steps I need to check next time;   
+
+- Install latest Java
+- Install latest Java jdk
+- Make sure Java home option is set to location of the jdk (Java Development Kit)
+
+```{r, eval = FALSE}
+# Some code to use next time I encounter rJava issues
+# Reconfig java
+sudo R CMD javareconf 
+# Some code to check java
+options("java.home")
+options("java.home"="/Library/Java/JavaVirtualMachines/jdk1.8.0_171.jdk/Contents/Home/jre") # Set
+```
+Useful links; 
+
+1) Followed [this](http://osxdaily.com/2017/06/16/uninstall-java-mac/) to uninstall Java.  
+2) Reinstalled Java from [here](https://www.java.com/en/download/help/mac_install.xml).  
+3) Checked out errors from [here](https://stackoverflow.com/questions/47057120/r-how-to-set-up-jdk-to-work-with-r-related-rjava-rstudio-xslx).  
+4) Downloaded [clang](https://cran.cnr.berkeley.edu/bin/macosx/tools/).
+5) Read [this](http://www.owsiak.org/r-3-4-rjava-macos-and-even-more-mess/#comment-126311).

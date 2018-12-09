@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Forecasting on Data Science Explorer</title>
+    <link>/tags/forecasting/</link>
+    <description>Recent content in Forecasting on Data Science Explorer</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 09 Jul 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/forecasting/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Forecasting AFL Mean Score</title>
+      <link>/post/forecasting-afl-mean-score/</link>
+      <pubDate>Mon, 09 Jul 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/forecasting-afl-mean-score/</guid>
+      <description>Today I practice some time-series forecasting techniques in R by applying them to total scores in the AFL.
+The question I am interested in answering is - “what kind of average scores should we expect in AFL over next 10 years”
+Here are the packages used;
+# Packages library(tidyverse) # For everything ## Warning: package &amp;#39;dplyr&amp;#39; was built under R version 3.5.1 library(here) # For project-oriented workflow library(ggthemes) # For nice plot themes library(forecast) # For nice plot themes library(devtools) # For non-CRAN packages library(fitzRoy) # Data source Set up and EDA I create a data set for simple time-series analysis.</description>
+    </item>
+    
+    <item>
+      <title>Time Series Forecasting Practice</title>
+      <link>/post/time-series-forecasting-practice/</link>
+      <pubDate>Tue, 03 Jul 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/time-series-forecasting-practice/</guid>
+      <description>Today I explore time series forecasting use AFL data from the fitzRoy package.
+Key concepts A forecast is the mean of simulated futures.
+ Making a ts object
+ Trend, Seasonality, Cyclicity
+ Plotting lags and ACF
+ White noise
+ Creating forecast objects
+ Checking residuals Mean Absolute Scaled Error Cross Validation Exponential Smoothing   Things to do # TODO - figure out why full ts doesn&amp;#39;t show info from the 1900s # Packages library(tidyverse) # For everything ## Warning: package &amp;#39;dplyr&amp;#39; was built under R version 3.</description>
+    </item>
+    
+  </channel>
+</rss>

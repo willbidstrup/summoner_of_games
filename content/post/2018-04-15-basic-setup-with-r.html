@@ -1,0 +1,136 @@
+---
+title: Basic setup with R
+author: Will Bidstrup
+date: '2018-03-12'
+slug: basic-setup-with-r
+categories:
+  - R
+tags:
+  - R
+---
+
+
+
+<p>This is my basic setup for using R.</p>
+<p>If you follow this guide you will be able to collaborate with me easily.</p>
+<p>I have kept things as simple as possible, this is more of a checklist than a detailed how-to guide covering every nuance. Here are the steps;</p>
+<ul>
+<li>Install R</li>
+<li>Install R Studio</li>
+<li>Create a GitHub account</li>
+<li>Install GitHub Desktop</li>
+<li>Set up a project</li>
+</ul>
+<div id="install-r" class="section level1">
+<h1>Install R</h1>
+<p>Go <a href="https://cran.r-project.org/bin/windows/base/">here</a> for Windows.<br />
+Go <a href="https://cran.r-project.org/bin/macosx/">here</a> for MAC.</p>
+<p>You want to download a file named something like <strong>R 3.4.3</strong></p>
+<p>Now unpack and run that program to install R on your computer.</p>
+<p>You can check your R installation by opening the Terminal on MAC or <a href="https://www.quora.com/How-do-I-open-terminal-in-windows">something similar in Windows</a>.</p>
+<p>Now type “R” (ignore the quotations) in the Terminal and hit ENTER.</p>
+<p>You should see something like this;</p>
+<div class="figure">
+<img src="/images/r_terminal.png" />
+
+</div>
+<p><em>(I found <a href="https://github.com/rstudio/blogdown/issues/45">this post</a> very useful to troubleshoot linking images)</em></p>
+<p>From here you can play with anything in R that you might see in an online course, such as <a href="https://www.datacamp.com/">DataCamp</a>. I strongly recommend using DataCamp to learn R.</p>
+<p>This step is all that you need to do to use R.</p>
+</div>
+<div id="install-r-studio" class="section level1">
+<h1>Install R Studio</h1>
+<p>I recommend that you <a href="https://www.rstudio.com/products/rstudio/download/">download R Studio</a>, whichever version suits your computer.</p>
+</div>
+<div id="create-a-github-account" class="section level1">
+<h1>Create a GitHub account</h1>
+<p>Version control is not just useful for working in teams - it will also help you retain some sanity as you create more complex scripts and projects. You are being kind to yourself by learning the discipline of version control.</p>
+<p>So, go to <a href="https://github.com/">GitHub</a> and create an account. The basic subscription is free which is fine for now.</p>
+</div>
+<div id="install-github-desktop" class="section level1">
+<h1>Install GitHub Desktop</h1>
+<p>I suggest <a href="https://desktop.github.com/">GitHub Desktop</a> because it works for me.<br />
+Install the relevant version for your machine and follow the prompts.</p>
+<p>At this point, you need to think about where you will store your R work on your local machine.</p>
+<p>You can use a default folder location, or I suggest creating a folder called “GitHub” or “Data Science” or similar that you can use to store your project folders.</p>
+</div>
+<div id="set-up-a-project" class="section level1">
+<h1>Set up a project</h1>
+<p>Here how I set up a new project and store it on my local machine and GitHub.</p>
+<p>These are the steps;</p>
+<div id="create-a-new-repository-on-github" class="section level2">
+<h2>1. Create a new repository on GitHub</h2>
+<p>I suggest starting with a repo on GitHub first, it just seems much cleaner and easier for everything that follows. Go to your repositories tab and click the green “New” button, and give your repo a name.<br />
+Don’t use spaces in the name.<br />
+Do initialize the file with a README.<br />
+Do add a .gitignore - I suggest picking any .gitignore template - it doesn’t matter because we will change it soon.</p>
+<div class="figure">
+<img src="/images/new_repo.png" />
+
+</div>
+</div>
+<div id="edit-your-.gitignore-file" class="section level2">
+<h2>2. Edit your .gitignore file</h2>
+<p>Your .gitignore will descibe which files do not get shared by version control. I use it to make sure large datasets on my local machine don’t get pushed to GitHub - there is a file size limit and you will get an error. Real programmers also use it for all kinds of other exclusions.</p>
+<p>Click on the .gitignore file.<br />
+Click on the pencil next to the trash icon, so you can edit the file.<br />
+Delete everything and put in the following;</p>
+<p><img src="/images/git_ignore.png" /> Click the green button that says “Commit changes”</p>
+</div>
+<div id="clone-your-repo-from-github-to-your-local-machine" class="section level2">
+<h2>3. Clone your repo from GitHub to your local machine</h2>
+<p>On the homepage for your new repo you will see a green button called “Clone or download”. Click it and select “Open in Desktop”, then something like “Open with GitHub Desktop app”.<br />
+Now you can choose where to store the local files.<br />
+I recommend keeping the file name the same, just choose your folder.</p>
+<div class="figure">
+<img src="/images/clone_repo.png" />
+
+</div>
+<p>Now you have a folder on your local machine that is linked to your GitHub profile. It contains one visible file, your README, and one hidden file which is your .gitignore. You can also create your “data” folder now.</p>
+<div class="figure">
+<img src="/images/local_repo.png" />
+
+</div>
+</div>
+<div id="create-a-project-in-r-studio" class="section level2">
+<h2>4. Create a Project in R Studio</h2>
+<p>Open R Studio, click “File” and “New Project”. Create your project in an existing directory. This existing directory should be the directory you just created on your local machine.</p>
+<div class="figure">
+<img src="/images/create_project.png" />
+
+</div>
+<p>Now you can compare your local folder with the R Studio project window. Note that the hidden .gitignore file is visible in the R Studio window.</p>
+<div class="figure">
+<img src="/images/r_project_local.png" />
+
+</div>
+</div>
+<div id="create-an-r-script" class="section level2">
+<h2>5. Create an R script</h2>
+<p>Create an R script (File -&gt; New File -&gt; R Script). Call it whatever you want and then save it into the same folder - you should now see it in the R Studio window and your file browser.</p>
+<div class="figure">
+<img src="/images/new_r_script.png" />
+
+</div>
+</div>
+<div id="push-your-changes-to-github" class="section level2">
+<h2>6. Push your changes to GitHub</h2>
+<p>Go back to GitHub Desktop and navigate to your examnple_repo. You should see there are some changes.</p>
+<p>Write a comment about changes and then click “Commit to master”.</p>
+<div class="figure">
+<img src="/images/github_desktop.png" />
+
+</div>
+<p>Then click “Sync” in the top right.</p>
+<p>Then go back to your GitHub account - you should see that the example_repo has been updated and you will see your R Script file has been added to the remote repository.</p>
+<div class="figure">
+<img src="/images/updated_repo.png" />
+
+</div>
+</div>
+<div id="what-next" class="section level2">
+<h2>What next?</h2>
+<p>If you have come this far, you are ready to play around with the many excellent online R courses but with the added bonus of a robust project-oriented file structure and an approach to version control for your work.</p>
+<p><a href="https://kkulma.github.io/">Kasia Kulma</a> has an <a href="https://kkulma.github.io/2018-03-18-Prime-Hints-for-Running-a-data-project-in-R/">excellent post</a> that you should read now. It has everything you need to know about how to set up and run your projects.</p>
+</div>
+</div>

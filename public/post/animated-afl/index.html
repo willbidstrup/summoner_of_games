@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="author" content="Will Bidstrup">
+    <meta name="description" content="/">
+    <meta name="keywords" content="blog,developer,personal">
+    
+    <meta property="og:site_name" content="Data Science Explorer">
+    <meta property="og:title" content="
+  Animated AFL - Data Science Explorer
+">
+    <meta property="og:description" content="">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="/post/animated-afl/">
+    <meta property="og:image" content="/">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="/post/animated-afl/">
+    <meta name="twitter:image" content="/">
+
+    <base href="/">
+    <title>
+  Animated AFL - Data Science Explorer
+</title>
+
+    <link rel="canonical" href="/post/animated-afl/">
+    
+    <link  rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:400,700">
+    <link rel="stylesheet" href="//cdn.rawgit.com/necolas/normalize.css/master/normalize.css">
+    <link rel="stylesheet" href="/css/style.min.css">
+
+    
+
+    
+
+    <link rel="icon" type="image/png" href="/images/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/images/favicon-16x16.png" sizes="16x16">
+
+    
+
+    <meta name="generator" content="Hugo 0.41" />
+  </head>
+
+  <body class="">
+    <main class="wrapper">
+      <nav class="navigation">
+  <section class="container">
+    <a class="navigation-title" href="/">Data Science Explorer</a>
+    <input type="checkbox" id="menu-control"/>
+    <label class="menu-mobile  float-right " for="menu-control">
+      <span class="btn-mobile  float-right ">&#9776;</span>
+      <ul class="navigation-list">
+        
+          
+            <li class="navigation-item  align-center ">
+              <a class="navigation-link" href="/post/">Blog</a>
+            </li>
+          
+            <li class="navigation-item  align-center ">
+              <a class="navigation-link" href="/tags/">Tags</a>
+            </li>
+          
+            <li class="navigation-item  align-center ">
+              <a class="navigation-link" href="/about/">About</a>
+            </li>
+          
+        
+        
+      </ul>
+    </label>
+  </section>
+</nav>
+
+
+      <div class="content">
+        
+  <section class="container page">
+  <article>
+    <header>
+      <h1>Animated AFL</h1>
+    </header>
+
+    <p>Today I explore the <a href="https://github.com/dgrtwo/gganimate">gganimate package</a> with AFL data from the <a href="https://github.com/jimmyday12/fitzRoy">fitzRoy package</a>.</p>
+<p>Here are the packages used.</p>
+<pre class="r"><code># Packages
+library(tidyverse) # For everything
+library(here) # For project-oriented workflow
+library(ggthemes) # For nice plot themes
+library(devtools) # For non-CRAN packages
+library(fitzRoy) # Data source
+library(viridis) # Dependancy
+library(gganimate) # For animation
+library(animation) # For animation</code></pre>
+<p>Load results data - easy with the fitzRoy package.</p>
+<pre class="r"><code>d &lt;- get_match_results()</code></pre>
+<div id="goal-kicking-accuracy-of-home-teams" class="section level1">
+<h1>Goal kicking accuracy of home teams</h1>
+<p>I start by looking at goal kicking accuracy for home teams only. Why only home teams? Because of the way the data is set up it should be easy to ‘frame’ an animation by Home Team. I want to get an animation working first before doing anything fancier like merging the Home and Away goal kicking accuracy into a single view per team.</p>
+<p>Here is my metric - ‘accuracy’ being the percent of scoring shots that are goals.</p>
+<pre class="r"><code># Define goal accuracy = goal scoring shots / total scoring shots
+d$goal_accuracy &lt;- round((d$Home.Goals  / (d$Home.Goals + d$Home.Behinds)), digits = 2)</code></pre>
+<p>This plot will show the goal kicking accuracy of each game played by a Home Team. Note the <code>frame =</code> argument.</p>
+<pre class="r"><code>p1 &lt;- ggplot(data = d, aes(x = Date, y = goal_accuracy, frame = Home.Team, col = Home.Team)) + # frame means the plot can be animated
+  geom_point(alpha = 0.2) +
+  theme_tufte() +
+  geom_smooth() +
+  labs(title = &quot;AFL club goal kicking accuracy over time&quot;,
+       subtitle = &quot;Home games only&quot;,
+       x = &quot;&quot;,
+       y = &quot;Goal % of scoring shots&quot;,
+       caption = expression(paste(italic(&quot;Source: AFL games 1897 to 2018 c/o fitzRoy package&quot;))))</code></pre>
+<p>Here is what it looks like when animated - (note that I have linked directly to the output.gif).</p>
+<pre class="r"><code># Example how to a save as gif
+gganimate(p1, &quot;output.gif&quot;)</code></pre>
+<pre><code>## `geom_smooth()` using method = &#39;gam&#39;</code></pre>
+<pre><code>## Output at: output.gif</code></pre>
+<div class="figure">
+<img src="/images/output.gif" />
+
+</div>
+<p>A static view of each frame is an interesting alternative to using pwalk or faceting to show multiple plots…</p>
+<pre class="r"><code>gganimate(p1)</code></pre>
+<pre><code>## `geom_smooth()` using method = &#39;gam&#39;</code></pre>
+<p><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-7-1.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-7-2.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-7-3.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-7-4.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-7-5.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-7-6.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-7-7.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-7-8.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-7-9.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-7-10.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-7-11.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-7-12.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-7-13.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-7-14.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-7-15.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-7-16.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-7-17.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-7-18.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-7-19.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-7-20.png" width="672" /></p>
+</div>
+<div id="comparing-goal-kicking-accuracy-at-home-or-away-games-by-team" class="section level1">
+<h1>Comparing goal kicking accuracy at home or away games by team</h1>
+<div id="pre-process" class="section level2">
+<h2>Pre-process</h2>
+<p>To compare the goal kicking accuracy of each team over time I will need to do some data pre-processing.</p>
+<p>The default results dataframe looks like this;</p>
+<pre class="r"><code>glimpse(d)</code></pre>
+<pre><code>## Observations: 15,311
+## Variables: 17
+## $ Game          &lt;dbl&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 1...
+## $ Date          &lt;date&gt; 1897-05-08, 1897-05-08, 1897-05-08, 1897-05-08,...
+## $ Round         &lt;chr&gt; &quot;R1&quot;, &quot;R1&quot;, &quot;R1&quot;, &quot;R1&quot;, &quot;R2&quot;, &quot;R2&quot;, &quot;R2&quot;, &quot;R2&quot;, ...
+## $ Home.Team     &lt;chr&gt; &quot;Fitzroy&quot;, &quot;Collingwood&quot;, &quot;Geelong&quot;, &quot;Sydney&quot;, &quot;...
+## $ Home.Goals    &lt;int&gt; 6, 5, 3, 3, 6, 4, 3, 9, 6, 5, 12, 8, 5, 5, 2, 11...
+## $ Home.Behinds  &lt;int&gt; 13, 11, 6, 9, 4, 6, 8, 10, 5, 9, 6, 11, 14, 11, ...
+## $ Home.Points   &lt;int&gt; 49, 41, 24, 27, 40, 30, 26, 64, 41, 39, 78, 59, ...
+## $ Away.Team     &lt;chr&gt; &quot;Carlton&quot;, &quot;St Kilda&quot;, &quot;Essendon&quot;, &quot;Melbourne&quot;, ...
+## $ Away.Goals    &lt;int&gt; 2, 2, 7, 6, 5, 8, 10, 3, 5, 7, 6, 0, 3, 5, 6, 7,...
+## $ Away.Behinds  &lt;int&gt; 4, 4, 5, 8, 6, 2, 6, 1, 7, 8, 5, 2, 4, 3, 6, 4, ...
+## $ Away.Points   &lt;int&gt; 16, 16, 47, 44, 36, 50, 66, 19, 37, 50, 41, 2, 2...
+## $ Venue         &lt;chr&gt; &quot;Brunswick St&quot;, &quot;Victoria Park&quot;, &quot;Corio Oval&quot;, &quot;...
+## $ Margin        &lt;int&gt; 33, 25, -23, -17, 4, -20, -40, 45, 4, -11, 37, 5...
+## $ Season        &lt;dbl&gt; 1897, 1897, 1897, 1897, 1897, 1897, 1897, 1897, ...
+## $ Round.Type    &lt;chr&gt; &quot;Regular&quot;, &quot;Regular&quot;, &quot;Regular&quot;, &quot;Regular&quot;, &quot;Reg...
+## $ Round.Number  &lt;int&gt; 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, ...
+## $ goal_accuracy &lt;dbl&gt; 0.32, 0.31, 0.33, 0.25, 0.60, 0.40, 0.27, 0.47, ...</code></pre>
+<p>I need a data frame where each team is represented on each date, with a label for if the game was home or away for them. Here are the steps taken to get there.</p>
+<pre class="r"><code># Select relevant variables
+d1 &lt;- d %&gt;%
+  select(Date, Home.Team, Home.Goals, Home.Behinds, Away.Team, Away.Goals, Away.Behinds)</code></pre>
+<pre class="r"><code># Calculate goal accuracy for each type of game
+d1 &lt;- d1 %&gt;%
+  mutate(home_acc = round((d$Home.Goals  / (d$Home.Goals + d$Home.Behinds)), digits = 2),
+         away_acc = round((d$Away.Goals  / (d$Away.Goals + d$Away.Behinds)), digits = 2))</code></pre>
+<pre class="r"><code># Again select only relevant variables
+d1 &lt;- d1 %&gt;%
+  select(Date, Home.Team, Away.Team, home_acc, away_acc)</code></pre>
+<pre class="r"><code># Gather teams, now we have each team on a seperate line per date
+d2 &lt;- d1 %&gt;%
+  gather(&quot;type&quot;, &quot;team&quot;, 2:3)</code></pre>
+<pre class="r"><code># But, each line has both home and away accuracy - need to replace the redundant value with NA so each line has just the relevant accuracy (home or away) for each team
+d2$home_acc &lt;- ifelse(d2$type == &quot;Home.Team&quot;, d2$home_acc, NA)
+d2$away_acc &lt;- ifelse(d2$type == &quot;Away.Team&quot;, d2$away_acc, NA)</code></pre>
+<pre class="r"><code># Finally, create a new variable which is the merged accuracy - this is so that the &#39;type&#39; variable can be used to distinguish between home and away games (rather than two seperate accuracy variables)
+d3 &lt;- d2 
+d3$accuracy &lt;- ifelse(is.na(d3$away_acc), d3$home_acc, d3$away_acc)</code></pre>
+</div>
+<div id="plot" class="section level2">
+<h2>Plot</h2>
+<pre class="r"><code>p2 &lt;- ggplot(data = d3, aes(x = Date, y = accuracy, frame = team, col = type)) +
+  geom_point(alpha = 0.2) +
+  geom_smooth(se = FALSE) + # Turn off error marking for better visual
+  scale_color_manual(values = c(&quot;#cc3333&quot;, &quot;#669966&quot;)) +
+  theme_tufte() +
+  labs(title = &quot;AFL club goal kicking accuracy over time&quot;,
+       subtitle = &quot;Comparison home vs away games&quot;,
+       x = &quot;&quot;,
+       y = &quot;Goal % of scoring shots&quot;,
+       caption = expression(paste(italic(&quot;Source: AFL games 1897 to 2018 c/o fitzRoy package&quot;))))</code></pre>
+<pre class="r"><code># Example how to a save as gif
+gganimate(p2, &quot;output2.gif&quot;)</code></pre>
+<pre><code>## `geom_smooth()` using method = &#39;gam&#39;</code></pre>
+<pre><code>## Output at: output2.gif</code></pre>
+<div class="figure">
+<img src="/images/output2.gif" />
+
+</div>
+<pre class="r"><code>gganimate(p2)</code></pre>
+<pre><code>## `geom_smooth()` using method = &#39;gam&#39;</code></pre>
+<p><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-17-1.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-17-2.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-17-3.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-17-4.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-17-5.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-17-6.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-17-7.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-17-8.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-17-9.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-17-10.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-17-11.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-17-12.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-17-13.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-17-14.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-17-15.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-17-16.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-17-17.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-17-18.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-17-19.png" width="672" /><img src="/post/2018-06-07-animated-afl_files/figure-html/unnamed-chunk-17-20.png" width="672" /></p>
+</div>
+</div>
+<div id="conclusions" class="section level1">
+<h1>Conclusions</h1>
+<p>Using an animation is a good way to get a look at the way a number of categories compare to each other. Personally I find the animation a relaxing and hypnotic way to explore - then refer to the ‘static’ animation for a closer look.</p>
+<p>Some observations about goal kicking accuracy;</p>
+<ul>
+<li>Looks like accuracy in general is better at home than away although this is not always the case<br />
+</li>
+<li>Some teams are more erratic than others over time (looking at you Port Adelaide)<br />
+</li>
+<li>In general looks like goal kicking accuracy has improved over time for most clubs</li>
+</ul>
+<p>Lots to explore more here another time.</p>
+</div>
+
+  </article>
+</section>
+
+
+      </div>
+      
+    </main>
+
+    
+
+  <script src="/js/app.js"></script>
+  
+  </body>
+</html>
