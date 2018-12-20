@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>/projects/</loc>
+    <lastmod>2018-12-20T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/post/the-games-i-played-in-2018-part-one-eda/</loc>
     <lastmod>2018-12-07T00:00:00+00:00</lastmod>
   </url>
@@ -85,7 +90,7 @@
   
   <url>
     <loc>/</loc>
-    <lastmod>2018-12-07T00:00:00+00:00</lastmod>
+    <lastmod>2018-12-20T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
