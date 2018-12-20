@@ -6,9 +6,17 @@ date: "2018-03-10"
 >““Exploration is curiosity put into action.”  
 > ― **Don Walsh**  
 
-I'm an Australian born, New Guinea raised man interested in living a good life. I've worked in factories, farms, juice stations, theatres, bars and offices. I look after capacity and workforce planning for [Publicis.Sapient](https://publicis.sapient.com/content/psredesign/en-us.html).  I've self-published music and a book. I like heavy metal, chilli, cybermen, tabletop roleplaying games and learning.     
-    
-Welcome to my online notebook where I share snippets of code, works-in-progress, thoughts and small experiments in data analysis, wrangling, visualizing, modelling and anything else I play around with that falls broadly into the category of scientific exploration or doing things with data.     
+ 
+Welcome to my personal learning journal where I share snippets of code, works-in-progress, thoughts, experiments, analyses, wrangling, visualizing, modelling and anything else I play around with that falls broadly into the category of scientific exploration or doing things with data.  
+
+I'm Australian born, New Guinea raised, living in London.    
+
+I have worked in factories, farms, juice stations, theatres, bars and offices.   
+
+I now work at [Publicis.Sapient](https://publicis.sapient.com/content/psredesign/en-us.html).   
+
+Some things I like include heavy metal on 10, chilli, cybermen, tabletop roleplaying games and whisky.         
+   
 
 
 **CREDITS:**  
