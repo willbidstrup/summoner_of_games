@@ -6,10 +6,23 @@
     <description>Recent content on Data Science Explorer</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Thu, 20 Dec 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 21 Dec 2018 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Comparing prediction, human intervention and actual</title>
+      <link>/post/comparing-prediction-human-intervention-and-actual/</link>
+      <pubDate>Fri, 21 Dec 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/comparing-prediction-human-intervention-and-actual/</guid>
+      <description>It is common to have machine learning algorithms learn from the variance between actual and predictions but I have seen less examples where human intervention is accounted for as well.
+What I am interested in measuring is;
+A predicted course of action
+ An adjusted course of action, that has been confirmed by a human
+ The actual events that occur  Today I am going to create a simple scenario that outlines activity over a single calendar year.</description>
+    </item>
     
     <item>
       <title>Projects</title>
