@@ -55,7 +55,7 @@ disqusShortname = "yourdiscussshortname" # Enable or disable Disqus.
 [[menu.main]]
     name = "YABP"
     weight = 3
-    url = "/YABP/"
+    url = "/yabp/"
 [[menu.main]]
     name = "Games"
     weight = 2
