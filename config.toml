@@ -1,5 +1,5 @@
-baseurl = "https://www.datascienceexplorer.com" # Hostname (and path) to the root.
-title = "Data Science Explorer" # Site title.
+baseurl = "https://www.summonerofgames.com" # Hostname (and path) to the root.
+title = "Summoner Of Games" # Site title.
 theme = "coder-portfolio" # Set the theme.
 languagecode = "en" # The site’s language code used to generate RSS.
 defaultcontentlanguage = "en" # The default content language.
@@ -14,11 +14,11 @@ pygmentsUseClasses = true # new add
 disqusShortname = "yourdiscussshortname" # Enable or disable Disqus.
 
 [params] # theme parameters
-    author = "Will Bidstrup" # Author's name.
-    info = "Exploration journal" # Author's job title or info.
-    description = "Will Bidstrup's personal website" # Site description.
+    author = "SUMMONER OF GAMES" # Author's name.
+    info = "RPG design, theory and practice" # Author's job title or info.
+    description = "RPG design, theory and practice" # Site description.
     keywords = "blog,developer,personal" # Site keywords.
-    avatarurl = "images/viking.png" # Contain the path of the optionnal avatar in the static folder.
+    avatarurl = "images/avatar.jpg" # Contain the path of the optionnal avatar in the static folder.
 
     footercontent = "Enter a text here." # Add footer content
 
@@ -42,19 +42,6 @@ disqusShortname = "yourdiscussshortname" # Enable or disable Disqus.
     # Multilanguage mode
     langseparator = "|" # Separates menus from language selectors when site is multilingual.
 
-# Social links
-[[params.social]]
-    name = "Github"
-    weight = 1
-    url = "https://github.com/willbidstrup/"
-[[params.social]]
-    name = "Twitter"
-    weight = 2
-    url = "https://twitter.com/willbidstrup/"
-[[params.social]]
-    name = "LinkedIn"
-    weight = 3
-    url = "https://www.linkedin.com/in/willbidstrup/"
 
 # Menu links
 [[menu.main]]
@@ -63,9 +50,13 @@ disqusShortname = "yourdiscussshortname" # Enable or disable Disqus.
     url  = "/post/"
 [[menu.main]]
     name = "About"
-    weight = 3
+    weight = 4
     url = "/about/"
 [[menu.main]]
-    name = "Projects"
+    name = "YABP"
+    weight = 3
+    url = "/YABP/"
+[[menu.main]]
+    name = "Games"
     weight = 2
-    url = "/projects/"
+    url = "/games/"

@@ -1,0 +1,35 @@
+---
+title: Hyborian Arena 0
+author: 'Will Bidstrup'
+date: '2018-07-19'
+slug: hyborian-arena-0
+categories:
+  - RPG
+tags:
+  - before the game
+---
+
+Slaves and prisoners of war from across the lands are brought to this brutal arena where they are tested in mortal combat.
+
+The Hyborian Arena is a place to teach the basics of combat in the Conan 2d20 system. 
+To prepare you should;
+
+- [Create a character](https://conan.modiphiusapps.hostinguk.org/) 
+- [Create a Roll20 account](https://roll20.net/)
+
+Some of the features include;
+
+- Arena map from classic Conan tile set
+- Rule references from core rule book
+- Doom and Momentum counters
+ 
+Although designed as a tutorial for single sessions, there is also a campaign element to this game. Every challenger who enters the arena will have their name and deeds recorded. Any who can survive six rounds will be called Champion and granted their freedom!
+
+- Human opponent
+- Wild beasts 
+- Human opponent
+- Wild beasts
+- Human opponent
+- Horror
+
+*Hall Of Heroes coming soon*

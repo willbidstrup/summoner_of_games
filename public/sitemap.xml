@@ -3,83 +3,103 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>/post/setting-yearly-targets-with-deep-work-supervisor/</loc>
-    <lastmod>2018-12-24T00:00:00+00:00</lastmod>
+    <loc>/post/tales-from-the-loop-ii/</loc>
+    <lastmod>2018-10-28T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/comparing-prediction-human-intervention-and-actual/</loc>
-    <lastmod>2018-12-21T00:00:00+00:00</lastmod>
+    <loc>/post/tales-from-the-loop-i/</loc>
+    <lastmod>2018-10-21T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>/projects/</loc>
-    <lastmod>2018-12-20T00:00:00+00:00</lastmod>
+    <loc>/games/</loc>
+    <lastmod>2018-10-15T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/the-games-i-played-in-2018-part-one-eda/</loc>
-    <lastmod>2018-12-07T00:00:00+00:00</lastmod>
+    <loc>/yabp/</loc>
+    <lastmod>2018-10-15T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/eda-with-r-and-postgresql/</loc>
-    <lastmod>2018-08-27T00:00:00+00:00</lastmod>
+    <loc>/post/out-of-the-abyss-xxix/</loc>
+    <lastmod>2018-10-14T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/setting-up-jupyter-notebooks/</loc>
-    <lastmod>2018-08-10T00:00:00+00:00</lastmod>
+    <loc>/post/out-of-the-abyss-xxviii/</loc>
+    <lastmod>2018-10-07T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/forecasting-afl-mean-score/</loc>
-    <lastmod>2018-07-09T00:00:00+00:00</lastmod>
+    <loc>/post/out-of-the-abyss-xxvii/</loc>
+    <lastmod>2018-09-16T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/time-series-forecasting-practice/</loc>
-    <lastmod>2018-07-03T00:00:00+00:00</lastmod>
+    <loc>/post/out-of-the-abyss-xxvi/</loc>
+    <lastmod>2018-09-09T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/one-hour-eda-fitzroy-r-package/</loc>
+    <loc>/post/out-of-the-abyss-xxv/</loc>
+    <lastmod>2018-09-02T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/out-of-the-abyss-xxiv/</loc>
+    <lastmod>2018-08-26T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/out-of-the-abyss-xxiii/</loc>
+    <lastmod>2018-08-19T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/out-of-the-abyss-xxii/</loc>
+    <lastmod>2018-08-12T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/dawn-of-worlds/</loc>
+    <lastmod>2018-08-03T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/out-of-the-abyss-xxi/</loc>
+    <lastmod>2018-07-23T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/hyborian-arena-0/</loc>
+    <lastmod>2018-07-19T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/out-of-the-abyss-xx/</loc>
+    <lastmod>2018-07-08T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/conan-adventures-in-hot-springs-island-0/</loc>
+    <lastmod>2018-07-05T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/slowplay-an-approach-to-learning-relaxing-and-writing-with-tabletop-rpgs/</loc>
+    <lastmod>2018-07-04T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/games_reports/out-of-the-abyss-xix/</loc>
     <lastmod>2018-07-01T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/python-training-first-steps/</loc>
-    <lastmod>2018-06-22T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/post/animated-afl/</loc>
-    <lastmod>2018-06-07T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/post/a-bag-of-barbarian-words/</loc>
-    <lastmod>2018-06-04T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/post/i-dont-want-better-goal-kicking-accuracy-in-the-afl/</loc>
-    <lastmod>2018-05-07T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/post/makeover-monday-visualisations/</loc>
-    <lastmod>2018-04-16T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/post/learning-about-kicking-in-the-afl/</loc>
-    <lastmod>2018-04-15T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/post/basic-setup-with-r/</loc>
-    <lastmod>2018-03-12T00:00:00+00:00</lastmod>
+    <loc>/post/out-of-the-abyss-xix/</loc>
+    <lastmod>2018-07-01T00:00:00+00:00</lastmod>
   </url>
   
   <url>
@@ -88,8 +108,20 @@
   </url>
   
   <url>
-    <loc>/tags/afl/</loc>
-    <lastmod>2018-07-01T00:00:00+00:00</lastmod>
+    <loc>/tags/after-the-game/</loc>
+    <lastmod>2018-10-28T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/articles/</loc>
+    <lastmod>2018-07-04T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/before-the-game/</loc>
+    <lastmod>2018-07-19T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -99,80 +131,32 @@
   </url>
   
   <url>
-    <loc>/</loc>
-    <lastmod>2018-12-24T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>/tags/eda/</loc>
-    <lastmod>2018-12-07T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>/tags/forecasting/</loc>
-    <lastmod>2018-07-09T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>/post/</loc>
-    <lastmod>2018-12-24T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>/tags/python/</loc>
-    <lastmod>2018-08-10T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>/categories/python/</loc>
-    <lastmod>2018-08-10T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>/tags/r/</loc>
-    <lastmod>2018-12-24T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>/categories/r/</loc>
-    <lastmod>2018-12-24T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>/tags/sql/</loc>
-    <lastmod>2018-08-27T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>/categories/sql/</loc>
-    <lastmod>2018-08-27T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>/tags/</loc>
+    <loc>/games_reports/</loc>
     <lastmod>2018-07-01T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>/tags/text-mining/</loc>
-    <lastmod>2018-06-04T00:00:00+00:00</lastmod>
+    <loc>/post/</loc>
+    <lastmod>2018-10-28T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>/tags/visualisation/</loc>
-    <lastmod>2018-12-07T00:00:00+00:00</lastmod>
+    <loc>/categories/rpg/</loc>
+    <lastmod>2018-10-28T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/</loc>
+    <lastmod>2018-10-28T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/</loc>
+    <lastmod>2018-10-28T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   

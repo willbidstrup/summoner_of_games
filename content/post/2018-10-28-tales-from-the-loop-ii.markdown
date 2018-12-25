@@ -1,0 +1,50 @@
+---
+title: Tales From The Loop II
+author: 'Will Bidstrup'
+date: '2018-10-28'
+slug: tales-from-the-loop-ii
+categories:
+  - RPG
+tags:
+  - after the game
+---
+
+![A mysterious Echo Sphere.](/images/tfl/echo_sphere.jpg) 
+
+# The adults are disappearing…and that’s a bad thing?
+
+The kids wake up and decide to drive to Stenhamra to access the library and try to find out about the ship IEX-4Z32. Ylva knows how to break in there, it’s easy. Not so easy is figuring out if the car has enough petrol to get them there and back. They may need to refuel at one of the robotic stations which will surely require some sort of ID.  
+They head back to the house of Mats Tingblad and explain their plan. He is reluctant to leave his house but after some persuading he puts on his only set of clothes not covered in bird blood and helps the kids fill up the car. After dropping him back home, the kids head into the largest settlement on the Malarian Islands. Lucky it’s summer break, the traffic is light and the town seems almost empty.    
+
+While breaking into the library the kids spot the janitor Per. This is to be expected, as he sometimes works in vacation time to perform maintenance on the school. He is known for being very thorough and meticulous in his work. What he is not known for is having exhaust pipes sticking out of his legs, and when the kids notice these they follow him down into the basement. They are confronted with a scene of grim horror; refrigerators filled with human body parts, tables stacked with mechanical insurgents and bubbling and smoking evidence of mad science. Worst of all, they find a number of seemingly dead human bodies, including the ‘real’ Per. In a brilliantly co-ordinated attack, the kids manage to overcome the robot look-a-like and decide to unscrew its head and keep it for good luck.  They exit the library just in time to avoid the police and head back on the road.  
+
+Back in the hideout they listen to the radio and note the stories about a gang of kids who are killing birds (and therefore obviously playing Dungeons & Dragons and therefore also worshipping Satan) and a couple of incidents of vehicle damage in Stenhamra. Now that they know where the ship XXXX is located they decide to head there and solve the mystery of the killer birds.    
+
+Kristine knows a family who own a boat and convinces them to let her borrow it for her activity day with the other kids who ‘need special help’.   
+
+On the island the kids are confronted by a flock of killer seagulls led by a frightening goshawk - frightening right up to the point Heinrich knocks its head off with his baseball bat. They find and confront Gunnar Granat who has been seemingly imprisoned in the wreck for a couple of weeks. He has been working on a machine to control lure, make and control killer birds. It does two of this things. Tilly figures out how to shut the machine down and the kids manage to overcome Gunnar, choosing to lock him back inside the wreck once they are done listening to him rant about his ‘beloved’.    
+
+After returning the boat, the kids return to their lives. No-one seems to know or care that they have saved the people of the Malarian Islands from this deadly threat but at least they have a few more weeks without school…  
+
+
+————
+
+
+School is as boring as ever for Heinrich who focuses on his sports and Ylva who focuses on stealing things. Tillie lives to learn and Kristine lives to be seen so they have no problems. Everything is normal. Normal, until some adults start acting weird and disappearing in the night.  
+
+Gathering at Ylva and Heinrich’s house, the kids <del>steal</del> borrow some supplies and set out through the fields on a moonlight night, after Tillie does some impressive triangulation of the various disappearances.    
+
+On the north-eastern edge of the island they sneak up on a curious scene. Gathered around in a field are at least twenty adults. They are milling about talking to each other in mostly quiet tones, although there is the occasional burst of laughter or raised argumentative voice. They seem to be surrounding a steel cylinder about two metres tall. The kids spot some large cables leading into the ground and some smaller cables, badly concealed, leading into the nearby forest.  
+
+In the forest they find what is know commonly as an ‘Echo Sphere’ a piece of technology that has something to do with the Loop, although no-one knows (or says) exactly what. While investigating the sphere, the kids see that the service engineers name is Michael Wirsen. Then they are confronted by Isaac, a robot who looks like a robot except for the raincoat he wears and the cane he carries. He speaks in British-butler english and has an electrical hand which he promises will hurt if he touches them with it.  
+
+The kids manage to hold a conversation with Isaac for long enough to discern that he feels uncomfortable about the contraction that his ‘master’ has built in the field nearby. The Echo Sphere looks after the programming of the cylinder, but the power supply must come from the Graviton loop beneath the surface. Isaac thinks the kids should go there to shut down the power supply. With some <del>careful</del> lucky programming, the kids manage to free Isaac from his prime directive ‘to guard the echo sphere’ and then decide to head home.    
+
+
+# DM/Designer Notes
+
+The kids went a bit off the rails, or rather they went a bit deeper than I was expecting. The Tales From The Loop book contains some adventures as well as a kind of sandbox. I really like this as it provides lots of content to fill out the world.   
+
+Things got a bit dark as well, which is never a bad thing in my opinion…  
+
+
