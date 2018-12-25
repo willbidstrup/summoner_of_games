@@ -6,10 +6,19 @@
     <description>Recent content in Games_reports on Summoner Of Games</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Sun, 01 Jul 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 25 Dec 2018 14:31:35 +0000</lastBuildDate>
     
 	<atom:link href="/games_reports/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title></title>
+      <link>/games_reports/2018-12-25-test/</link>
+      <pubDate>Tue, 25 Dec 2018 14:31:35 +0000</pubDate>
+      
+      <guid>/games_reports/2018-12-25-test/</guid>
+      <description>Something something</description>
+    </item>
     
     <item>
       <title>Out Of The Abyss XIX</title>

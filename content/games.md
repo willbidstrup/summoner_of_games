@@ -10,4 +10,4 @@ This is a comprehensive log of every RPG I have. each entry has two sections; th
 
 Classic tabletop RPG experience, real people sitting around a real table.  
 
-Links TBC
+[testlink](/games_reports/2018-12-25-test/index.html)
