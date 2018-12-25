@@ -18,7 +18,7 @@ disqusShortname = "yourdiscussshortname" # Enable or disable Disqus.
     info = "RPG design, theory and practice" # Author's job title or info.
     description = "RPG design, theory and practice" # Site description.
     keywords = "blog,developer,personal" # Site keywords.
-    avatarurl = "images/avatar.jpg" # Contain the path of the optionnal avatar in the static folder.
+    avatarurl = "images/summoner.png" # Contain the path of the optionnal avatar in the static folder.
 
     footercontent = "Enter a text here." # Add footer content
 
