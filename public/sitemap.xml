@@ -3,17 +3,12 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>/games_reports/2018-12-25-test/</loc>
-    <lastmod>2018-12-25T14:31:35+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/post/tales-from-the-loop-ii/</loc>
+    <loc>/games_reports/tales-from-the-loop-ii/</loc>
     <lastmod>2018-10-28T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/tales-from-the-loop-i/</loc>
+    <loc>/games_reports/tales-from-the-loop-i/</loc>
     <lastmod>2018-10-21T00:00:00+00:00</lastmod>
   </url>
   
@@ -98,11 +93,6 @@
   </url>
   
   <url>
-    <loc>/games_reports/out-of-the-abyss-xix/</loc>
-    <lastmod>2018-07-01T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
     <loc>/post/out-of-the-abyss-xix/</loc>
     <lastmod>2018-07-01T00:00:00+00:00</lastmod>
   </url>
@@ -137,13 +127,13 @@
   
   <url>
     <loc>/games_reports/</loc>
-    <lastmod>2018-12-25T14:31:35+00:00</lastmod>
+    <lastmod>2018-10-28T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/post/</loc>
-    <lastmod>2018-10-28T00:00:00+00:00</lastmod>
+    <lastmod>2018-10-14T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -155,7 +145,7 @@
   
   <url>
     <loc>/</loc>
-    <lastmod>2018-12-25T14:31:35+00:00</lastmod>
+    <lastmod>2018-10-28T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   

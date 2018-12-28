@@ -6,35 +6,26 @@
     <description>Recent content on Summoner Of Games</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Tue, 25 Dec 2018 14:31:35 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 28 Oct 2018 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title></title>
-      <link>/games_reports/2018-12-25-test/</link>
-      <pubDate>Tue, 25 Dec 2018 14:31:35 +0000</pubDate>
-      
-      <guid>/games_reports/2018-12-25-test/</guid>
-      <description>Something something</description>
-    </item>
-    
-    <item>
       <title>Tales From The Loop II</title>
-      <link>/post/tales-from-the-loop-ii/</link>
+      <link>/games_reports/tales-from-the-loop-ii/</link>
       <pubDate>Sun, 28 Oct 2018 00:00:00 +0000</pubDate>
       
-      <guid>/post/tales-from-the-loop-ii/</guid>
+      <guid>/games_reports/tales-from-the-loop-ii/</guid>
       <description>The adults are disappearing…and that’s a bad thing? The kids wake up and decide to drive to Stenhamra to access the library and try to find out about the ship IEX-4Z32. Ylva knows how to break in there, it’s easy. Not so easy is figuring out if the car has enough petrol to get them there and back. They may need to refuel at one of the robotic stations which will surely require some sort of ID.</description>
     </item>
     
     <item>
       <title>Tales From The Loop I</title>
-      <link>/post/tales-from-the-loop-i/</link>
+      <link>/games_reports/tales-from-the-loop-i/</link>
       <pubDate>Sun, 21 Oct 2018 00:00:00 +0000</pubDate>
       
-      <guid>/post/tales-from-the-loop-i/</guid>
+      <guid>/games_reports/tales-from-the-loop-i/</guid>
       <description>The kids took this bus before deciding to borrow a car.
  Our parents will kill us if we are killed by killer birds Summer holidays on the Malaren Islands. The kids meet as usual in the boarded-up, closed-down community library in Kungsberga.
 There’s Kristine, the most popular girl in school, according to reputable sources such as herself. She looks at herself in the mirror placed against one wall and tries not to think about her crazy aunt in the basement.</description>
@@ -46,10 +37,22 @@ There’s Kristine, the most popular girl in school, according to reputable sour
       <pubDate>Mon, 15 Oct 2018 00:00:00 +0000</pubDate>
       
       <guid>/games/</guid>
-      <description>This is a comprehensive log of every RPG I have. each entry has two sections; the first is written as fictionfrom the POV of the characters or a narrative voice, the second contains thoughts from a game designers perspective.
-Live Group
-Classic tabletop RPG experience, real people sitting around a real table.
-testlink</description>
+      <description>These are notes from my RPG sessions as player and Dungeon Master.
+Live games: campaigns D&amp;amp;D 5E Out Of The Abyss
+OOTA Session I-XVIII (coming soon)
+OOTA Session XIX
+OOTA Session XX
+OOTA Session XXI
+OOTA Session XXII
+OOTA Session XXIII
+OOTA Session XXIV
+OOTA Session XXV
+OOTA Session XXVI
+OOTA Session XXVII
+OOTA Session XXVIII
+OOTA Session XXVIV
+D&amp;amp;D 5E Hoard Of The Dragon Queen
+Tales From The Loop</description>
     </item>
     
     <item>
@@ -221,17 +224,6 @@ I also have a parallel interest in game design. So when I am reading an RPG prod
     
     <item>
       <title>Out Of The Abyss XIX</title>
-      <link>/games_reports/out-of-the-abyss-xix/</link>
-      <pubDate>Sun, 01 Jul 2018 00:00:00 +0000</pubDate>
-      
-      <guid>/games_reports/out-of-the-abyss-xix/</guid>
-      <description>I am lucky to play in an excellent face-to-face campaign run by Edward from the London Dungeons and Dragons Meetup.
-There have been 18 sessions so far, following the Out Of The Abyss campaign for 5th Edition Dungeons &amp;amp; Dragons. Edward keeps great notes and so do some of the players, so I will add elements of these in future.
-For now, prepare to hear a few dread tales of The Underdark as experienced from the viewpoint of Tredrea Meksoith, Pirate King Of Darklake and True Servant Of The Bitch Queen&amp;hellip;</description>
-    </item>
-    
-    <item>
-      <title>Out Of The Abyss XIX</title>
       <link>/post/out-of-the-abyss-xix/</link>
       <pubDate>Sun, 01 Jul 2018 00:00:00 +0000</pubDate>
       
@@ -249,11 +241,13 @@ For now, prepare to hear a few dread tales of The Underdark as experienced from 
       <guid>/about/</guid>
       <description>““Games lubricate the body and the mind.”
 ― Benjamin Franklin
- This is where I celebrate and think about the games I play.
+ This is where I celebrate and think about the games I play and make.
+You will find narrative writing of varying perspectives and quality, commentary from the trenches of being a DM, development updates and articles about the game design industry.
+LINKS
+If you ended up here, you will probably like these&amp;hellip;
+TBC
 CREDITS:
-Thanks to blogdown: Creating Websites with R Markdown for explaining how to set this website up.
-Thanks to Luiz F. A. de Prá for the Coder theme and Yusiki Ishimi for extending it into the Coder-Portfolio theme.
-Thanks to Mara Averick for this post which was also very helpful in setting up GitHub + Netlify deployment.</description>
+Thanks to blogdown: Creating Websites with R Markdown for explaining how to set this website up.</description>
     </item>
     
   </channel>

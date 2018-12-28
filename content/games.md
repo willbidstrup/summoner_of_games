@@ -3,11 +3,33 @@ title: "Games"
 date: "2018-10-15"
 ---
 
-This is a comprehensive log of every RPG I have. each entry has two sections; the first is written as fictionfrom the POV of the characters or a narrative voice, the second contains thoughts from a game designers perspective.  
+These are notes from my RPG sessions as player and Dungeon Master.    
 
 
-**Live Group**
+# Live games: campaigns
 
-Classic tabletop RPG experience, real people sitting around a real table.  
+**D&D 5E Out Of The Abyss**  
+OOTA Session I-XVIII (coming soon)  
+[OOTA Session XIX](/games_reports/tales-from-the-loop-i/index.html)     
+[OOTA Session XX](/games_reports/tales-from-the-loop-i/index.html)    
+[OOTA Session XXI](/games_reports/tales-from-the-loop-i/index.html)    
+[OOTA Session XXII](/games_reports/tales-from-the-loop-i/index.html)  
+[OOTA Session XXIII](/games_reports/tales-from-the-loop-i/index.html)   
+[OOTA Session XXIV](/games_reports/tales-from-the-loop-i/index.html)  
+[OOTA Session XXV](/games_reports/tales-from-the-loop-i/index.html)  
+[OOTA Session XXVI](/games_reports/tales-from-the-loop-i/index.html)  
+[OOTA Session XXVII](/games_reports/tales-from-the-loop-i/index.html)  
+[OOTA Session XXVIII](/games_reports/tales-from-the-loop-i/index.html)  
+[OOTA Session XXVIV](/games_reports/tales-from-the-loop-i/index.html)  
 
-[testlink](/games_reports/2018-12-25-test/index.html)
+**D&D 5E Hoard Of The Dragon Queen**
+
+
+**Tales From The Loop**  
+[TFL Session I](/games_reports/tales-from-the-loop-i/index.html)  
+[TFL Session II](/games_reports/tales-from-the-loop-ii/index.html)  
+TFL Session III (coming soon)  
+TFL Session IV (coming soon)  
+
+
+# Live games: one-shots
