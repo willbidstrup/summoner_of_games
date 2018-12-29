@@ -10,6 +10,8 @@ This is where I celebrate and think about the games I play and make.
 
 You will find narrative writing of varying perspectives and quality, commentary from the trenches of being a DM, development updates and articles about the game design industry. 
 
+I can be summoned on [twitter](https://twitter.com/willbidstrup).    
+
 **LINKS**
 
 If you ended up here, you will probably like these...  
