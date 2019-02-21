@@ -11,43 +11,43 @@ tags:
 
 In 2018 I was lucky enough to play a lot of Dungeons & Dragons but I did not not do a lot of DMing, just four sessions of Tales From The Loop.  
 
-This year I'd like to run a campaign (maybe two), starting from soon until the end of the year.   
+This year I'd like to run a campaign, starting from soon until the end of the year.   
 
-Here are a list of ideas and elevator pitches I can share with players to gauge their interest during a "session 0" meeting.  
+Here are my top six(!) I would like to run...
 
 
 
 # Forgotten Realms 
-
+![](/images/articles/dnd.jpg) 
 **Game system:** Dungeons & Dragons 5E  
-**Pick this if you like the sound of:** Classic fantasy roleplaying, tactical combat, immersion in the official world of D&D, the world of Drizzt!!
+**Pick this if you like the sound of:** Classic fantasy roleplaying action and adventure, immersion in the official world of D&D, the world of Drizzt!!
 
 # Plunder and Power 
-
+![](/images/articles/HSI_player_map.jpg) 
 **Game system:** Dungeons & Dragons 5E/ Hot Springs Island    
-**Pick this if you like the sound of:** Jungles, intriguing factions, island mentality, swashbuckling, exploration
+**Pick this if you like the sound of:** Jungles, intriguing factions, island mentality, swashbuckling, exploration, strange flora and fauna
 
 # Escape From Hell
-
+![](/images/articles/veins-of-the-earth.png) 
 **Game system:** Lamentations Of The Flame Princess  
-**Pick this if you like the sound of:** Grim survival, countdown, claustrophobia, strange environments
+**Pick this if you like the sound of:** Grim survival, countdown, claustrophobia, strange environments, even stranger creatures, madness
 
 
 ----------
 
 
 
-# The Hyborian Age    
-
-**Game system:** Conan 2d20  
+# Adventures In An Age Undreamed Of   
+![](/images/articles/conan.jpg) 
+**Game system:** Conan 2d20    
 **Pick this if you like the sound oft:** To be like Conan and his friends, explore Hyboria, classic Sword-and-Sorcery, low magic
 
 # Red Undead Redemption
-
+![](/images/articles/deadlands.jpg) 
 **Game system:** Deadlands  
 **Pick this if you like the sound of:** Cast spells with poker hands, steampunk
 
 # Carcosa
-
-**Game system: Lamentations Of The Flame Princess**
-**Pick this if you like the sound of:**  Something off-the-wall, non-standard, grim Masters-Of-The-Universe
+![](/images/articles/carcosa.png) 
+**Game system:** Lamentations Of The Flame Princess    
+**Pick this if you like the sound of:**  Something non-standard, grim Masters-Of-The-Universe
