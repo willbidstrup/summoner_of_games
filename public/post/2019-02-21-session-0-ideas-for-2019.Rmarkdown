@@ -16,14 +16,15 @@ This year I'd like to run a campaign (maybe two), starting from soon until the e
 Here are a list of ideas and elevator pitches I can share with players to gauge their interest during a "session 0" meeting.  
 
 
+
 # Forgotten Realms 
 
 **Game system:** Dungeons & Dragons 5E  
-**Pick this if you like the sound of:** Classic fantasy roleplaying, tactical combat, immersion in the official world of D&D
+**Pick this if you like the sound of:** Classic fantasy roleplaying, tactical combat, immersion in the official world of D&D, the world of Drizzt!!
 
 # Plunder and Power 
 
-**Game system:** Dungeons & Dragons 5E   
+**Game system:** Dungeons & Dragons 5E/ Hot Springs Island    
 **Pick this if you like the sound of:** Jungles, intriguing factions, island mentality, swashbuckling, exploration
 
 # Escape From Hell
@@ -49,4 +50,4 @@ Here are a list of ideas and elevator pitches I can share with players to gauge 
 # Carcosa
 
 **Game system: Lamentations Of The Flame Princess**
-**Pick this if you like the sound of:** *Something off-the-wall, non-standard, grim Masters-Of-The-Universe*
+**Pick this if you like the sound of:**  Something off-the-wall, non-standard, grim Masters-Of-The-Universe
